@@ -45,7 +45,7 @@ QSTEM - image simulation for TEM/STEM/CBED
 #define OVERSAMP_X 2
 #define OVERSAMP_Z 18
 
-#define NSMAX 1000	/* max number of slices */
+#define NSMAX 2049	/* max number of slices */
 #define NLMAX	52	/* maximum number of layers */
 #define NCINMAX  500	/* max number of characers in stacking spec */
 #define NCMAX 256	/* max characters in file names */
@@ -72,7 +72,7 @@ QSTEM - image simulation for TEM/STEM/CBED
 
 #define BUF_LEN 256
 #define PI 3.14159265358979
-#define USE_REZ_SFACTS    1  // used in getAtomPotential3D and getAtomPotentialOffset3D 
+#define USE_REZ_SFACTS    1  // used in getAtomPotential3D and getAtomPotentialOffset3D
 #define Z_INTERPOLATION   0  // used in make3DSlices (central function for producing atom potential slices)
 #define USE_Q_POT_OFFSETS 1  // used in make3DSlices (central function for producing atom potential slices)
 
@@ -85,7 +85,7 @@ const double pid2=2*PI;
 // define all the scat facts (or just those for Sr, Ti, O, In, P, He,Cl, Si,Ca,Ba,Fe) from Rez et al / Doyle and Turner
 // the final 3 values must be zero to achieve a nice tapering off
 #if USE_REZ_SFACTS
-// provide array variable names 
+// provide array variable names
 // - scatPar[N_ELEM][N_SF] and
 // - scatParOffs[N_ELEM][N_SF]
 // and also define N_SF and N_ELEM:
@@ -157,7 +157,7 @@ void atomBoxLookUp(fftw_complex *vlu,MULS *muls,int Znum,double x,double y,doubl
 	static double maxRadius2;
 	static char fileName[256],systStr[256];
 	static fftw_complex sum;
-	static int tZ, tnx, tny, tnz, tzOversample;  
+	static int tZ, tnx, tny, tnz, tzOversample;
 	static double tdx, tdy, tdz, tv0, tB;
 	FILE *fpBox;
 	int numRead = 0,dummy;
@@ -178,13 +178,13 @@ void atomBoxLookUp(fftw_complex *vlu,MULS *muls,int Znum,double x,double y,doubl
 		dy = (*muls).resolutionY;    ddy = dy/(double)OVERSAMPLING;
 		dz = (*muls).sliceThickness; ddz = dz/(double)OVERSAMPLINGZ;
 		maxRadius2 = (*muls).atomRadius*(*muls).atomRadius;
-		/* For now we don't care, if the box has only small 
+		/* For now we don't care, if the box has only small
 		* prime factors, because we will not fourier transform it
 		* especially not very often.
 		*/
-		boxNx = (int)((*muls).atomRadius/ddx+2.0);  
-		boxNy = (int)((*muls).atomRadius/ddy+2.0);  
-		boxNz = (int)((*muls).atomRadius/ddz+2.0);     
+		boxNx = (int)((*muls).atomRadius/ddx+2.0);
+		boxNy = (int)((*muls).atomRadius/ddy+2.0);
+		boxNz = (int)((*muls).atomRadius/ddz+2.0);
 		if ((*muls).potential3D == 0)
 			boxNz = 1;
 
@@ -216,7 +216,7 @@ void atomBoxLookUp(fftw_complex *vlu,MULS *muls,int Znum,double x,double y,doubl
 				if (muls->printLevel >0)
 					printf("cannot calculate projected potential using scatpot - exit!\n");
 				exit(0);
-			}  
+			}
 
 		}
 		fgets( systStr, 250, fpBox );
@@ -226,7 +226,7 @@ void atomBoxLookUp(fftw_complex *vlu,MULS *muls,int Znum,double x,double y,doubl
 		* we need to create a new potential file
 		*/
 		if ((tZ != Znum) || (fabs(tB-B)>1e-6) || (tnx != boxNx) || (tny != boxNy) || (tnz != boxNz) ||
-			(fabs(tdx-ddx) > 1e-5) || (fabs(tdy-ddy) > 1e-5) || (fabs(tdz-ddz) > 1e-5) || 
+			(fabs(tdx-ddx) > 1e-5) || (fabs(tdy-ddy) > 1e-5) || (fabs(tdz-ddz) > 1e-5) ||
 			(tzOversample != OVERSAMPLINGZ) || (tv0 != muls->v0)) {
 				if (muls->printLevel > 2) {
 					printf("Potential input file %s has the wrong parameters\n",fileName);
@@ -238,11 +238,11 @@ void atomBoxLookUp(fftw_complex *vlu,MULS *muls,int Znum,double x,double y,doubl
 						Znum,B,boxNx,boxNy,boxNz,ddx,ddy,ddz,OVERSAMPLINGZ,(*muls).v0);
 					/* printf("%d %d %d %d %d %d %d %d %d %d\n",
 					(tZ != Znum),(tB != B),(tnx != boxNx),(tny != boxNy),(tnz != boxNz),
-					(fabs(tdx-ddx) > 1e-5),(fabs(tdy-ddy) > 1e-5),(fabs(tdz-ddz) > 1e-5), 
+					(fabs(tdx-ddx) > 1e-5),(fabs(tdy-ddy) > 1e-5),(fabs(tdz-ddz) > 1e-5),
 					(tzOversample != OVERSAMPLINGZ),(tv0 != muls->v0));
 					*/
 				}
-				/* Close the old file, Create a new potential file now 
+				/* Close the old file, Create a new potential file now
 				*/
 				fclose( fpBox );
 				sprintf(systStr,"scatpot %s %d %g %d %d %d %g %g %g %d %g",
@@ -252,7 +252,7 @@ void atomBoxLookUp(fftw_complex *vlu,MULS *muls,int Znum,double x,double y,doubl
 					if (muls->printLevel >0)
 						printf("cannot calculate projected potential using scatpot - exit!\n");
 					exit(0);
-				}  
+				}
 				fgets( systStr, 250, fpBox );
 		}
 
@@ -271,7 +271,7 @@ void atomBoxLookUp(fftw_complex *vlu,MULS *muls,int Znum,double x,double y,doubl
 #else
 			aBox[Znum].potential = complex3D(boxNz,boxNx,boxNy,"atomBox");
 			numRead = fread(aBox[Znum].potential[0][0],sizeof(fftw_complex),
-				(size_t)(boxNx*boxNy*boxNz),fpBox);	
+				(size_t)(boxNx*boxNy*boxNz),fpBox);
 #endif
 		}
 
@@ -382,7 +382,7 @@ void atomBoxLookUp(fftw_complex *vlu,MULS *muls,int Znum,double x,double y,doubl
 ****************************************************/
 void make3DSlices(MULS *muls,int nlayer,char *fileIn,atom *center) {
 	// FILE *fpu2;
-	char fileOut[512]; // RAM: this is terrible, why is fileName a function argument and here we have filename?  FIXED: rename function argument to fileIn and this to fileOut
+	char fileOut[512]; // RAM: FIXED: rename function argument to fileIn and this to fileOut
 	int natom,iatom,iz;  /* number of atoms */
 	atom *atoms;
 	real dx,dy,dz;
@@ -436,7 +436,7 @@ void make3DSlices(MULS *muls,int nlayer,char *fileIn,atom *center) {
 #endif
 		for (i=0;i<nlayer;i++) {
 			// printf("%d %d\n",i,(int)(muls->trans));
-			oldTrans0[i] = muls->trans[i]; 
+			oldTrans0[i] = muls->trans[i];
 		}
 		oldTrans = muls->trans;
 	}
@@ -459,7 +459,7 @@ void make3DSlices(MULS *muls,int nlayer,char *fileIn,atom *center) {
 		divCount = muls->cellDiv;
 	divCount--;
 
-	/* we only want to reread and shake the atoms, if we have finished the 
+	/* we only want to reread and shake the atoms, if we have finished the
 	* current unit cell.
 	*/
 	if (divCount == muls->cellDiv-1) {
@@ -470,13 +470,13 @@ void make3DSlices(MULS *muls,int nlayer,char *fileIn,atom *center) {
 			atoms = (*muls).atoms;
 		}
 		else {
-			/* 
+			/*
 			the following function makes an array of natom atoms from
 			the input file (with x,y,z,dw,occ);
 			*/
-			// the last parameter is handleVacancies.  If it is set to 1 vacancies 
+			// the last parameter is handleVacancies.  If it is set to 1 vacancies
 
-			// and multiple occupancies will be handled. 
+			// and multiple occupancies will be handled.
 			atoms = readUnitCell(&natom,fileIn,muls,1);
 			if (muls->printLevel>=3)
 				printf("Read %d atoms from %s, tds: %d\n",natom,fileIn,muls->tds);
@@ -505,14 +505,14 @@ void make3DSlices(MULS *muls,int nlayer,char *fileIn,atom *center) {
 			printf("Y: %g .. %g\n",minY,maxY);
 			printf("Z: %g .. %g\n",minZ,maxZ);
 		}
-		/* 
+		/*
 		define the center of our unit cell by moving the atom specified
-		by "center" at position (0.5,0.5,0.0) 
+		by "center" at position (0.5,0.5,0.0)
 		*/
 
 		if (center != NULL) {
-			dx = (*muls).ax/2.0f - (*center).x;	
-			dy = (*muls).by/2.0f - (*center).y;	
+			dx = (*muls).ax/2.0f - (*center).x;
+			dy = (*muls).by/2.0f - (*center).y;
 			dz = -(*center).z;
 			for (i=0;i<natom;i++) {
 				atoms[i].x += dx;
@@ -533,25 +533,23 @@ void make3DSlices(MULS *muls,int nlayer,char *fileIn,atom *center) {
 		// RAM I think this is not working correctly to output the file
 		// Muls passed in as *muls, so by pointer rather than by-value.
 		// Ok, and cfgFile is not set before here...  Look at Muls and see if there's been some variable confusion
-
-
-		printf( "DEBUG: stemlib::make3Dslices : muls.cfgFile = %s \n", muls->cfgFile );
+		// printf( "DEBUG: stemlib::make3Dslices : muls.cfgFile = %s \n", muls->cfgFile );
 
 		qsort(atoms,natom,sizeof(atom),atomCompare);
 
 
-		if ((*muls).cfgFile != NULL) 
+		if ((*muls).cfgFile != NULL)
 		{
 			sprintf(buf,"%s/%s",muls->folder,muls->cfgFile);
 			// append the TDS run number
 			if (strcmp(buf+strlen(buf)-4,".cfg") == 0) *(buf+strlen(buf)-4) = '\0';
 			if (muls->tds) sprintf(buf+strlen(buf),"_%d.cfg",muls->avgCount);
 			else sprintf(buf+strlen(buf),".cfg");
-		
+
 			// printf("Will write CFG file <%s> (%d)\n",buf,muls->tds)
 			writeCFG(atoms,natom,buf,muls);
 
-			if (muls->readPotential) 
+			if (muls->readPotential)
 			{
 				sprintf(buf,"nanopot %s/%s %d %d %d %s",muls->folder,muls->cfgFile,
 					ny,nx,muls->slices*muls->cellDiv,muls->folder);
@@ -564,7 +562,7 @@ void make3DSlices(MULS *muls,int nlayer,char *fileIn,atom *center) {
 		atoms = muls->atoms;
 	}
 
-	/************************************************************** 
+	/**************************************************************
 	*	setup the slices with their start and end positions
 	*	then loop through all the atoms and add their potential to
 	*	the slice that their potential reaches into (up to RMAX)
@@ -573,7 +571,7 @@ void make3DSlices(MULS *muls,int nlayer,char *fileIn,atom *center) {
 	c = muls->sliceThickness * muls->slices;
 	dx = (*muls).resolutionX;
 	dy = (*muls).resolutionY;
-	dr   = muls->resolutionX/OVERSAMP_X;  // define step width in which radial V(r,z) is defined 
+	dr   = muls->resolutionX/OVERSAMP_X;  // define step width in which radial V(r,z) is defined
 	iRadX = (int)ceil((*muls).atomRadius/dx);
 	iRadY = (int)ceil((*muls).atomRadius/dy);
 	iRadZ = (int)ceil((*muls).atomRadius/muls->sliceThickness);
@@ -583,7 +581,7 @@ void make3DSlices(MULS *muls,int nlayer,char *fileIn,atom *center) {
 	if (muls->printLevel >= 3) {
 		printf("Slab thickness: %gA z-offset: %gA (cellDiv=%d)\n",
 			c,c*(real)(muls->cellDiv-divCount-1),divCount);
-	}	 
+	}
 	/*******************************************************
 	* initializing slicPos, cz, and transr
 	*************************************************************/
@@ -611,13 +609,13 @@ void make3DSlices(MULS *muls,int nlayer,char *fileIn,atom *center) {
 		(*muls).cz[0] = c/(real)nlayer;
 	else
 		(*muls).cz[0] = muls->sliceThickness;
-	slicePos[0] = (*muls).czOffset;  
+	slicePos[0] = (*muls).czOffset;
 	/*
 	************************************************************/
 
 
 	for (i=1;i<nlayer;i++) {
-		if (sliceFp == NULL) (*muls).cz[i] = (*muls).cz[0];  
+		if (sliceFp == NULL) (*muls).cz[i] = (*muls).cz[0];
 		/* don't need to all be the same, yes they do for fast 3D-FFT method! */
 		else {
 			fgets(buf,BUF_LEN,sliceFp);
@@ -650,7 +648,7 @@ void make3DSlices(MULS *muls,int nlayer,char *fileIn,atom *center) {
 		return;
 	}
 
-	// reset the potential to zero:  
+	// reset the potential to zero:
 #if FLOAT_PRECISION == 1
 	memset((void *)&(muls->trans[0][0][0][0]),0,
 		muls->slices*muls->potNx*muls->potNy*sizeof(fftwf_complex));
@@ -667,11 +665,11 @@ void make3DSlices(MULS *muls,int nlayer,char *fileIn,atom *center) {
 	/*
 	for (i=0;i<nlayer;i++)
 	printf("slice center: %g width: %g\n",slicePos[i],(*muls).cz[i]);
-	*/ 
+	*/
 
 	/****************************************************************
-	* Loop through all the atoms and add their potential 
-	* to the slices:									 
+	* Loop through all the atoms and add their potential
+	* to the slices:
 	***************************************************************/
 
 	time(&time0);
@@ -695,7 +693,7 @@ void make3DSlices(MULS *muls,int nlayer,char *fileIn,atom *center) {
 		/* cellDiv = number of times that the big super cell is divided into
 		* less big ones, yet often still bigger than a single unit cell
 		* (for saving memory)
-		* divCount = counter of how many such semi-super cells we already 
+		* divCount = counter of how many such semi-super cells we already
 		* passed through.
 		* c = height in A of one such semi-super cell.
 		* Since cellDiv is always >=1, and divCount starts at 0, the actual position
@@ -703,10 +701,10 @@ void make3DSlices(MULS *muls,int nlayer,char *fileIn,atom *center) {
 		*/
 		/* c*(real)((*muls).cellDiv-divCount-1) will pick the right super-cell
 		* division in the big super-cell
-		* The z-offset 0.5*cz[0] will position atoms at z=0 into the middle of the first 
+		* The z-offset 0.5*cz[0] will position atoms at z=0 into the middle of the first
 		* slice.
 		*/
-		atomZ = atoms[iatom].z-c*(real)(muls->cellDiv-divCount-1) + muls->czOffset 
+		atomZ = atoms[iatom].z-c*(real)(muls->cellDiv-divCount-1) + muls->czOffset
 			-(0.5*muls->sliceThickness*(1-muls->centerSlices));
 		// make sure that slices are centered for 2D and 3D differently:
 		if (muls->potential3D==0)	atomZ += 0.5*muls->sliceThickness;
@@ -715,14 +713,14 @@ void make3DSlices(MULS *muls,int nlayer,char *fileIn,atom *center) {
 		/* Now we need to find the first atom that contributes to this slice */
 		/* Make use of the fact that we sorted the atoms in z */
 		if ((*muls).nonPeriodZ) {
-			if (((*muls).potential3D) && (atomZ -(*muls).atomRadius > c)) break;	 
-			if (((*muls).potential3D==0) && (atomZ > c)) break;		
+			if (((*muls).potential3D) && (atomZ -(*muls).atomRadius > c)) break;
+			if (((*muls).potential3D==0) && (atomZ > c)) break;
 			do {
 				// printf("z: %g c: %g\n",atomZ,c);
 				if (((*muls).potential3D) && (atomZ+(*muls).atomRadius+muls->sliceThickness >=0)) break;
-				if (((*muls).potential3D==0) && (atomZ >=0)) break;			  
-				// atomZ = atoms[++iatom].z-c*(real)((*muls).cellDiv-divCount-1)+ (0.5*(*muls).cz[0]*muls->centerSlices);	
-				atomZ = atoms[++iatom].z-c*(real)(muls->cellDiv-divCount-1) + muls->czOffset 
+				if (((*muls).potential3D==0) && (atomZ >=0)) break;
+				// atomZ = atoms[++iatom].z-c*(real)((*muls).cellDiv-divCount-1)+ (0.5*(*muls).cz[0]*muls->centerSlices);
+				atomZ = atoms[++iatom].z-c*(real)(muls->cellDiv-divCount-1) + muls->czOffset
 					-(0.5*muls->sliceThickness*(1-muls->centerSlices));
 				if (muls->potential3D==0)	atomZ += 0.5*muls->sliceThickness;
 				else atomZ -= muls->sliceThickness;
@@ -737,12 +735,12 @@ void make3DSlices(MULS *muls,int nlayer,char *fileIn,atom *center) {
 		atomY = atoms[iatom].y -(*muls).potOffsetY;
 
 		/* so far we need periodicity in z-direction.
-		* This requirement can later be removed, if we 
-		* use some sort of residue slice which will contain the 
+		* This requirement can later be removed, if we
+		* use some sort of residue slice which will contain the
 		* proj. potential that we need to add to the first slice of
 		* the next stack of slices
-		*	
-		* 
+		*
+		*
 		*/
 
 		/*************************************************************
@@ -752,14 +750,14 @@ void make3DSlices(MULS *muls,int nlayer,char *fileIn,atom *center) {
 			/* Warning: will assume constant slice thickness ! */
 			/* do not round here: atomX=0..dx -> iAtomX=0 */
 			/*
-			iAtomX = (int)(atomX/dx);	
+			iAtomX = (int)(atomX/dx);
 			if (atomX/dx < (float)iAtomX) iAtomX--; // in case iAtomX is negative
 			iAtomY = (int)(atomY/dy);
 			if (atomY/dy < (float)iAtomY) iAtomY--;
 			iAtomZ = (int)(atomZ/(*muls).cz[0]);
 			if (atomZ/(*muls).cz[0] < (float)iAtomZ) iAtomZ--;
 			*/
-			iAtomX = (int)floor(atomX/dx);  
+			iAtomX = (int)floor(atomX/dx);
 			iAtomY = (int)floor(atomY/dy);
 			iAtomZ = (int)floor(atomZ/muls->cz[0]);
 
@@ -779,7 +777,7 @@ void make3DSlices(MULS *muls,int nlayer,char *fileIn,atom *center) {
 					if (iax+iAtomX < 0) {
 						iax = -iAtomX;
 						if (abs(iax)>iRadX) break;
-					} 
+					}
 					if (iax+iAtomX >= nx)	break;
 				}
 				x = (double)(iAtomX+iax)*dx-atomX;
@@ -789,7 +787,7 @@ void make3DSlices(MULS *muls,int nlayer,char *fileIn,atom *center) {
 						if (iay+iAtomY < 0) {
 							iay = -iAtomY;
 							if (abs(iay)>iRadY) break;
-						} 
+						}
 						if (iay+iAtomY >= ny)	break;
 					}
 					y = (double)(iAtomY+iay)*dy-atomY;
@@ -802,7 +800,7 @@ void make3DSlices(MULS *muls,int nlayer,char *fileIn,atom *center) {
 							/* calculate the range which we have left to cover with z-variation */
 							/* iRadZ is the number of slices (rounded up) that this atom
 							* will contribute to, given its current x,y-radius
-							*/ 
+							*/
 							iRadZ = (int)(sqrt(atomRadius2-r2sqr)/(*muls).cz[0]+1.0);
 							/* loop through the slices that this atoms contributes to */
 							for (iaz=-iRadZ;iaz <=iRadZ;iaz++) {
@@ -811,12 +809,12 @@ void make3DSlices(MULS *muls,int nlayer,char *fileIn,atom *center) {
 										if (-iAtomZ <= iRadZ) iaz = -iAtomZ;
 										else break;
 										if (abs(iaz)>nlayer) break;
-									} 
+									}
 									if (iaz+iAtomZ >= nlayer)	break;
 								}
 								z = (double)(iAtomZ+iaz+0.5)*(*muls).cz[0]-atomZ;
 								/* shift into the positive range */
-								iz = (iaz+iAtomZ+32*nlayer) % nlayer;	  
+								iz = (iaz+iAtomZ+32*nlayer) % nlayer;
 								/* x,y,z is the true vector from the atom center
 								* We can look up the proj potential at that spot
 								* using trilinear extrapolation.
@@ -825,23 +823,23 @@ void make3DSlices(MULS *muls,int nlayer,char *fileIn,atom *center) {
 									muls->tds ? 0 : atoms[iatom].dw);
 								//    printf("access: %d %d %d\n",iz,ix,iy);
 								muls->trans[iz][ix][iy][0] += dPot[0];
-								muls->trans[iz][ix][iy][1] += dPot[1]; 	
+								muls->trans[iz][ix][iy][1] += dPot[1];
 							} /* end of for iaz=-iRadZ .. iRadZ */
 						} /* end of if potential3D */
 
-						/********************************************************************/ 
+						/********************************************************************/
 
 						else { /* if 2D potential */
 							if ((*muls).nonPeriodZ) {
-								if (iAtomZ < 0)  break;			
-								if (iAtomZ >= nlayer)	break;	
-							}		 
+								if (iAtomZ < 0)  break;
+								if (iAtomZ >= nlayer)	break;
+							}
 							iz = (iAtomZ+32*nlayer) % nlayer;	  /* shift into the positive range */
 							atomBoxLookUp(&dPot,muls,atoms[iatom].Znum,x,y,0,
 								muls->tds ? 0 : atoms[iatom].dw);
 							z = (double)(iAtomZ+1)*(*muls).cz[0]-atomZ;
 
-							/* 
+							/*
 							printf("iz=%d,%d, z=%g, atomZ=%g(%g), iAtomZ=%d, c=%g (%d, %d))\n",
 							iz,iatom,z,atomZ,atoms[iatom].z,iAtomZ,c, divCount,(*muls).cellDiv);
 							*/
@@ -849,27 +847,27 @@ void make3DSlices(MULS *muls,int nlayer,char *fileIn,atom *center) {
 							//    printf("access: %d %d %d\n",iz,ix,iy);
 							if ((z<0.15*(*muls).cz[0]) && (iz >0)) {
 								muls->trans[iz][ix][iy][0] += 0.5*dPot[0];
-								muls->trans[iz][ix][iy][1] += 0.5*dPot[1]; 
+								muls->trans[iz][ix][iy][1] += 0.5*dPot[1];
 								muls->trans[iz-1][ix][iy][0] += 0.5*dPot[0];
-								muls->trans[iz-1][ix][iy][1] += 0.5*dPot[1];			
+								muls->trans[iz-1][ix][iy][1] += 0.5*dPot[1];
 							}
 							/* split the atom if it is close to the bottom edge of the slice */
 							else {
 								if ((z>0.85*(*muls).cz[0]) && (iz < nlayer-1)) {
 									(*muls).trans[iz][ix][iy][0] += 0.5*dPot[0];
-									(*muls).trans[iz][ix][iy][1] += 0.5*dPot[1];	
+									(*muls).trans[iz][ix][iy][1] += 0.5*dPot[1];
 									(*muls).trans[iz+1][ix][iy][0] += 0.5*dPot[0];
-									(*muls).trans[iz+1][ix][iy][1] += 0.5*dPot[1]; 		
+									(*muls).trans[iz+1][ix][iy][1] += 0.5*dPot[1];
 								}
 								else {
 									(*muls).trans[iz][ix][iy][0] += dPot[0];
-									(*muls).trans[iz][ix][iy][1] += dPot[1];	
+									(*muls).trans[iz][ix][iy][1] += dPot[1];
 								}
 							}
 							/*
 							if ((iatom % 100 == 0) && (fabs(x) <0.04) && (fabs(y) < 0.04))
 							printf("i: %d iz: %d atomZ: %g (%g)\n",iatom,iz,atomZ,z);
-							*/ 	  
+							*/
 						}
 					}
 				}
@@ -879,9 +877,9 @@ void make3DSlices(MULS *muls,int nlayer,char *fileIn,atom *center) {
 
 		/**************************************************************************
 		* Newer, even faster method based on FFT of tabulated scattering factors
-		**************************************************************************/ 
+		**************************************************************************/
 		else {	/* fftpotential */
-			iAtomX = (int)floor(atomX/dx);	
+			iAtomX = (int)floor(atomX/dx);
 			iAtomY = (int)floor(atomY/dy);
 			if (muls->potential3D) atomZ+=muls->sliceThickness;  // why ??? !!!!!
 			// printf("%d: pos=[%d, %d, %.1f]\n",iatom,iAtomX,iAtomY,atomZ);
@@ -926,7 +924,7 @@ void make3DSlices(MULS *muls,int nlayer,char *fileIn,atom *center) {
 							for (iax=iax0; iax <= iax1; iax++) {
 								potPtr = &(muls->trans[iAtomZ+iaz0][iax][iay0][0]);
 								// potPtr = &(muls->trans[iAtomZ-iaz0+iaz][iax][iay0][0]);
-								// printf("access: %d %d %d (%d)\n",iAtomZ+iaz0,iax,iay0,(int)potPtr);							
+								// printf("access: %d %d %d (%d)\n",iAtomZ+iaz0,iax,iay0,(int)potPtr);
 
 								//////////////////////////////////////////////////////////////////////
 								// Computation of Radius must be made faster by using pre-calculated ddx
@@ -934,7 +932,7 @@ void make3DSlices(MULS *muls,int nlayer,char *fileIn,atom *center) {
 								// use of sqrt slows down from 120sec to 180 sec.
 								x2 = iax*dx - atomX;  x2 *= x2;
 								for (iay=iay0; iay <= iay1; iay++) {
-									// printf("iax=%d, iay=%d\n",iax,iay); 
+									// printf("iax=%d, iay=%d\n",iax,iay);
 									y2 = iay*dy - atomY;  y2 *= y2;
 									r = sqrt(x2+y2);
 									// r = (x2+y2);
@@ -967,8 +965,8 @@ void make3DSlices(MULS *muls,int nlayer,char *fileIn,atom *center) {
 													// add the charge-dependent potential offset
 													if (atPotOffsPtr != NULL) {
 														potVal += atoms[iatom].q*((1-ddz)*((1-ddr)*atPotOffsPtr[ir-iOffsZ+Nr][0]+ddr*atPotOffsPtr[ir+1-iOffsZ+Nr][0])+
-															ddz *((1-ddr)*atPotOffsPtr[ir-iOffsZ   ][0]+ddr*atPotOffsPtr[ir+1-iOffsZ   ][0]));		
-													}	
+															ddz *((1-ddr)*atPotOffsPtr[ir-iOffsZ   ][0]+ddr*atPotOffsPtr[ir+1-iOffsZ   ][0]));
+													}
 #endif  // USE_Q_POT_OFFSETS
 #else   // Z_INTERPOLATION
 													potVal = (1-ddr)*atPotPtr[ir-iOffsZ+Nr][0]+ddr*atPotPtr[ir+1-iOffsZ+Nr][0];
@@ -976,10 +974,10 @@ void make3DSlices(MULS *muls,int nlayer,char *fileIn,atom *center) {
 													// add the charge-dependent potential offset
 													if (atPotOffsPtr != NULL) {
 														potVal += atoms[iatom].q*((1-ddr)*atPotOffsPtr[ir-iOffsZ+Nr][0]+ddr*atPotOffsPtr[ir+1-iOffsZ+Nr][0]);
-													}	
+													}
 #endif  // USE_Q_POT_OFFSETS
 #endif  // Z_INTERPOLATION
-													// if (r < dr) printf("%d: iaz=%d,pot=%g,ddr=%g, iOffsZ=%d\n",iatom,iaz,potVal,ddr,iOffsZ);												
+													// if (r < dr) printf("%d: iaz=%d,pot=%g,ddr=%g, iOffsZ=%d\n",iatom,iaz,potVal,ddr,iOffsZ);
 												}
 											} // if iOffZ < 0
 											else {
@@ -1002,7 +1000,7 @@ void make3DSlices(MULS *muls,int nlayer,char *fileIn,atom *center) {
 #if USE_Q_POT_OFFSETS
 													// add the charge-dependent potential offset
 													if (atPotOffsPtr != NULL) {
-														potVal += atoms[iatom].q*((1-ddr)*atPotOffsPtr[ir+iOffsZ][0]+ddr*atPotOffsPtr[ir+1+iOffsZ][0]);												
+														potVal += atoms[iatom].q*((1-ddr)*atPotOffsPtr[ir+iOffsZ][0]+ddr*atPotOffsPtr[ir+1+iOffsZ][0]);
 													}
 #endif  // USE_Q_POT_OFFSETS
 #endif  // Z_INTERPOLATION
@@ -1025,18 +1023,18 @@ void make3DSlices(MULS *muls,int nlayer,char *fileIn,atom *center) {
 									// potPtr++;
 
 									// wrap around when end of y-line is reached:
-									// if (++iay % muls->potNy == 0) potPtr -= 2*muls->potNy;		
-								} // iay=iay0 .. iay1	  
+									// if (++iay % muls->potNy == 0) potPtr -= 2*muls->potNy;
+								} // iay=iay0 .. iay1
 							} // iax=iax0 .. iax1
 						} // iaz0+iAtomZ < muls->slices
 						// dOffsZ = (iAtomZ-atomZ/muls->sliceThickness)*nzSub;
 						// printf("%5d (%2d): iAtomZ=%2d, offsZ=%g, diff=%g, (%g)\n",
 						//	  iatom,atoms[iatom].Znum,iAtomZ,dOffsZ,dOffsZ - (int)(dOffsZ+0.5),iAtomZ-atomZ/muls->sliceThickness);
-					} // if within bounds	
+					} // if within bounds
 				}  // muls->potential3D and non-periodic in x-y
 				////////////////////////////////////////////////////////////////////
 				// 2D potential calculation already seems to work!
-				// However, the potential is calculated wrongly, it is not integrated 
+				// However, the potential is calculated wrongly, it is not integrated
 				// in z-direction.	This must be done in the potential slice initialization
 				// procedure.
 				else {
@@ -1090,7 +1088,7 @@ void make3DSlices(MULS *muls,int nlayer,char *fileIn,atom *center) {
 				if (muls->potential3D) {
 					iAtomZ = (int)floor(atomZ/muls->sliceThickness+0.5);
 					iax0 = iAtomX-iRadX;
-					iax1 = iAtomX+iRadX; 
+					iax1 = iAtomX+iRadX;
 					iay0 = iAtomY-iRadY;
 					iay1 = iAtomY+iRadY;
 
@@ -1118,7 +1116,7 @@ void make3DSlices(MULS *muls,int nlayer,char *fileIn,atom *center) {
 							// potPtr = &(muls->trans[iAtomZ-iaz0+iaz][iax][iay0][0]);
 							x2 = iax*dx - atomX;	x2 *= x2;
 							for (iay=iay0; iay < iay1; ) {
-								// printf("iax=%d, iay=%d\n",iax,iay); 
+								// printf("iax=%d, iay=%d\n",iax,iay);
 								y2 = iay*dy - atomY;	y2 *= y2;
 								r = sqrt(x2+y2);
 								ddr = r/dr;
@@ -1151,8 +1149,8 @@ void make3DSlices(MULS *muls,int nlayer,char *fileIn,atom *center) {
 												// add the charge-dependent potential offset
 												if (atPotOffsPtr != NULL) {
 													potVal += atoms[iatom].q*((1-ddz)*((1-ddr)*atPotOffsPtr[ir-iOffsZ+Nr][0]+ddr*atPotOffsPtr[ir+1-iOffsZ+Nr][0])+
-														ddz *((1-ddr)*atPotOffsPtr[ir-iOffsZ   ][0]+ddr*atPotOffsPtr[ir+1-iOffsZ   ][0]));		
-												}	
+														ddz *((1-ddr)*atPotOffsPtr[ir-iOffsZ   ][0]+ddr*atPotOffsPtr[ir+1-iOffsZ   ][0]));
+												}
 #endif  // USE_Q_POT_OFFSETS
 #else  // Z_INTERPOLATION
 												potVal = (1-ddr)*atPotPtr[ir-iOffsZ+Nr][0]+ddr*atPotPtr[ir+1-iOffsZ+Nr][0];
@@ -1160,7 +1158,7 @@ void make3DSlices(MULS *muls,int nlayer,char *fileIn,atom *center) {
 												// add the charge-dependent potential offset
 												if (atPotOffsPtr != NULL) {
 													potVal += atoms[iatom].q*((1-ddr)*atPotOffsPtr[ir-iOffsZ+Nr][0]+ddr*atPotOffsPtr[ir+1-iOffsZ+Nr][0]);
-												}	
+												}
 #endif  // USE_Q_POT_OFFSETS
 #endif  // Z_INTERPOLATION
 											}
@@ -1185,7 +1183,7 @@ void make3DSlices(MULS *muls,int nlayer,char *fileIn,atom *center) {
 #if USE_Q_POT_OFFSETS
 												// add the charge-dependent potential offset
 												if (atPotOffsPtr != NULL) {
-													potVal += atoms[iatom].q*((1-ddr)*atPotOffsPtr[ir+iOffsZ][0]+ddr*atPotOffsPtr[ir+1+iOffsZ][0]);												
+													potVal += atoms[iatom].q*((1-ddr)*atPotOffsPtr[ir+iOffsZ][0]+ddr*atPotOffsPtr[ir+1+iOffsZ][0]);
 												}
 #endif  // USE_Q_POT_OFFSETS
 #endif  // Z_INTERPOLATION
@@ -1206,17 +1204,17 @@ void make3DSlices(MULS *muls,int nlayer,char *fileIn,atom *center) {
 								// potPtr++;
 
 								// wrap around when end of y-line is reached:
-								if (++iay % muls->potNy == 0) potPtr -= 2*muls->potNy;		
-							}   
+								if (++iay % muls->potNy == 0) potPtr -= 2*muls->potNy;
+							}
 						}
 					} // iaz0+iAtomZ < muls->slices
-				}  // muls->potential3D	
+				}  // muls->potential3D
 				////////////////////////////////////////////////////////////////////
 				// 2D potential (periodic) calculation already seems to work!
 				else {
 					iAtomZ = (int)floor(atomZ/muls->sliceThickness);
 					iax0 = iAtomX-iRadX+2*muls->potNx;
-					iax1 = iAtomX+iRadX+2*muls->potNx; 
+					iax1 = iAtomX+iRadX+2*muls->potNx;
 					iay0 = iAtomY-iRadY+2*muls->potNy;
 					iay1 = iAtomY+iRadY+2*muls->potNy;
 
@@ -1231,7 +1229,7 @@ void make3DSlices(MULS *muls,int nlayer,char *fileIn,atom *center) {
 					s12 = (1-ddx)*ddy;
 					s21 = ddx*(1-ddy);
 					s22 = ddx*ddy;
-					*/									
+					*/
 				    s22 = (1-ddx)*(1-ddy);
 					s21 = (1-ddx)*ddy;
 					s12 = ddx*(1-ddy);
@@ -1250,7 +1248,7 @@ void make3DSlices(MULS *muls,int nlayer,char *fileIn,atom *center) {
 							ptr = &(atPotPtr[atPosX*nyAtBox-iOffsY][0]);
 						for (iay=iay0; iay < iay1; iay++) {
 							// wrap around when end of y-line is reached:
-								int atPosY = (iay-iay0)*OVERSAMP_X-iOffsY; 
+								int atPosY = (iay-iay0)*OVERSAMP_X-iOffsY;
 								if ((atPosY < nyAtBox-1) && (atPosY >=0)) {
 							// do the real part
 									muls->trans[iAtomZ][iax % muls->potNx][iay % muls->potNy][0] +=
@@ -1261,7 +1259,7 @@ void make3DSlices(MULS *muls,int nlayer,char *fileIn,atom *center) {
 							ptr += 2*OVERSAMP_X;
 						}
 						} // if atPosX within limits
-					}   
+					}
 				}  // muls->potential3D	== 0
 			}
 			////////////////////////////////////////////////////////////////////
@@ -1282,24 +1280,32 @@ void make3DSlices(MULS *muls,int nlayer,char *fileIn,atom *center) {
 			/*
 			muls->thickness = iz;
 			showCrossSection(muls,(*muls).transr[iz],nx,1,0);
-			*/	
+			*/
 			// find the maximum value of each layer:
 			potVal = muls->trans[iz][0][0][0];
 			for (ddx=potVal,ddy = potVal,ix=0;ix<muls->potNy*muls->potNx;potVal = muls->trans[iz][0][++ix][0]) {
-				if (ddy<potVal) ddy = potVal; 
-				if (ddx>potVal) ddx = potVal; 
+				if (ddy<potVal) ddy = potVal;
+				if (ddx>potVal) ddx = potVal;
 			}
 
 #ifndef WIN32
-			sprintf(fileOut,"%s/%s%d.img",muls->folder,muls->fileBase,iz);
+            // RAM: in Linux this is backwards
+            // urease//mnt/cache/pdb-qstem/urease_nohydro_0.img
+            //
+            // Should be:
+            // /mnt/cache/pdb-qstem/urease/urease_nohydro_0.img
+            // So bug is in muls->FileBase
+            // RAM: RESOLVED, There was no #ifndef WIN32 for stripping the directory from the filename
+            // I also added a pot at the end to show this is the (non-projected) potential
+			sprintf(fileOut,"%s/%spot%d.img",muls->folder,muls->fileBase,iz);
 #else
-			sprintf(fileOut,"%s\\%s%d.img",muls->folder,muls->fileBase,iz);
+			sprintf(fileOut,"%s\\%spot%d.img",muls->folder,muls->fileBase,iz);
 #endif
 			if (muls->printLevel >= 3)
 				printf( "Saving (complex) potential layer %d to file %s (r: %g..%g)\n", iz, fileOut, ddx, ddy );
 
 			imageIO->SetThickness(muls->sliceThickness);
-			sprintf(buf,"Projected Potential (slice %d)",iz);		 
+			sprintf(buf,"Projected Potential (slice %d)",iz);
 			imageIO->SetComment(buf);
 			imageIO->WriteComplexImage( (void **)muls->trans[iz], fileOut );
 		} // loop through all slices
@@ -1313,11 +1319,11 @@ void make3DSlices(MULS *muls,int nlayer,char *fileIn,atom *center) {
 		}
 
 		for (ddx=tempPot[0][0],ddy = potVal,ix=0;ix<muls->potNy*muls->potNx;potVal = tempPot[0][++ix]) {
-			if (ddy<potVal) ddy = potVal; 
-			if (ddx>potVal) ddx = potVal; 
+			if (ddy<potVal) ddy = potVal;
+			if (ddx>potVal) ddx = potVal;
 		}
 #ifndef WIN32
-		sprintf(fileOut,"%s/%sProj.img",muls->folder,muls->fileBase);	
+		sprintf(fileOut,"%s/%sProj.img",muls->folder,muls->fileBase);
 #else
 		// RAM DEBUG : this is overwriting the original config file, why?  is filename something else?
 		// RAM RESOLVED: both fileName and filename were defined above...
@@ -1351,7 +1357,7 @@ fftwf_complex *getAtomPotential3D(int Znum, MULS *muls,double B,int *nzSub,int *
 	ImageIOPtr imageio = ImageIOPtr();
 	static fftwf_complex *ptr = NULL;
 	static char fileName[256];
-#endif 
+#endif
 	static double *splinb=NULL;
 	static double *splinc=NULL;
 	static double *splind=NULL;
@@ -1367,20 +1373,20 @@ fftwf_complex *getAtomPotential3D(int Znum, MULS *muls,double B,int *nzSub,int *
 
 		nx = 2*OVERSAMP_X*(int)ceil(muls->atomRadius/muls->resolutionX);
 		ny = 2*OVERSAMP_X*(int)ceil(muls->atomRadius/muls->resolutionY);
-		// The FFT-resolution in the z-direction must be high enough to avoid 
-		// artifacts due to premature cutoff of the rec. space scattering factor 
+		// The FFT-resolution in the z-direction must be high enough to avoid
+		// artifacts due to premature cutoff of the rec. space scattering factor
 		// we will therefore make it roughly the same as the x-resolution
-		// However, we will make sure that a single slice contains an integer number 
+		// However, we will make sure that a single slice contains an integer number
 		// of sampling points.
 		nzPerSlice = (int)floor(OVERSAMP_X*muls->sliceThickness/muls->resolutionX);
 		// make nzPerSlice odd:
 		if (2.0*(nzPerSlice >> 1) == nzPerSlice) nzPerSlice += 1;
-		// Total number of z-positions should be twice that of atomRadius/sliceThickness 
+		// Total number of z-positions should be twice that of atomRadius/sliceThickness
 		nz = (2*(int)ceil(muls->atomRadius/muls->sliceThickness))*nzPerSlice;
 		if (muls->printLevel > 1) printf("Will use %d sampling points per slice, total nz=%d (%d)\n",nzPerSlice,nz,nzPerSlice >> 1);
 
 		dkx = 0.5*OVERSAMP_X/(nx*muls->resolutionX);  // nx*muls->resolutionX is roughly 2*muls->atomRadius
-		dky = dkx;                                    
+		dky = dkx;
 		dkz = nzPerSlice/(double)(nz*muls->sliceThickness);
 		kmax2 = 0.5*nx*dkx/(double)OVERSAMP_X;  // largest k that we'll admit
 		smax2 = kmax2;
@@ -1398,16 +1404,16 @@ fftwf_complex *getAtomPotential3D(int Znum, MULS *muls,double B,int *nzSub,int *
 				for (ix = 0;ix < N_SF-10;ix++) {
 					if (scatPar[0][N_SF-4-ix] < scatPar[0][N_SF-3]-0.001*(ix+1)) break;
 					scatPar[0][N_SF-4-ix] = scatPar[0][N_SF-3]-0.001*(ix+1);
-					for (iy=1; iy<N_ELEM;iy++) scatPar[iy][N_SF-4-ix] = 0; 
+					for (iy=1; iy<N_ELEM;iy++) scatPar[iy][N_SF-4-ix] = 0;
 				}
 			}
 			else {
 				for (ix = 0;ix < 20;ix++) {
 					if (scatPar[0][N_SF-4-ix] < scatPar[0][N_SF-3]) break;
 					scatPar[0][N_SF-4-ix] = scatPar[0][N_SF-3];
-					for (iy=1; iy<N_ELEM;iy++) scatPar[iy][N_SF-4-ix] = scatPar[iy][N_SF-3];	
+					for (iy=1; iy<N_ELEM;iy++) scatPar[iy][N_SF-4-ix] = scatPar[iy][N_SF-3];
 				}
-			}		
+			}
 			if (muls->printLevel > 1) printf("getAtomPotential3D: set resolution of scattering factor to %g/A!\n",
 				scatPar[0][N_SF-4-ix]);
 		}	// end of if (scatPar[0][N_SF-4] > scatPar[0][N_SF-3])
@@ -1428,29 +1434,29 @@ fftwf_complex *getAtomPotential3D(int Znum, MULS *muls,double B,int *nzSub,int *
 		// allocate a 3D array:
 		atPot[Znum] = (fftwf_complex*) fftwf_malloc(nx*nz/4*sizeof(fftwf_complex));
 		memset(temp,0,nx*nz*sizeof(fftwf_complex));
-		kzmax	  = dkz*nz/2.0; 
+		kzmax	  = dkz*nz/2.0;
 		// define x-and z-position of atom center:
-		// The atom should sit in the top-left corner, 
+		// The atom should sit in the top-left corner,
 		// however (nzPerSlice+1)/2 above zero in z-direction
 		xPos = -2.0*PI*0.0;  // or muls->resolutionX*nx/(OVERSAMP_X), if in center
 		izOffset = (nzPerSlice-1)/2;
 		zPos = -2.0*PI*(muls->sliceThickness/nzPerSlice*(izOffset));
 
 		// What this look-up procedure will do is to supply V(r,z) computed from fe(q).
-		// Since V(r,z) is rotationally symmetric we might as well compute 
-		// V(x,y,z) at y=0, i.e. V(x,z).  
+		// Since V(r,z) is rotationally symmetric we might as well compute
+		// V(x,y,z) at y=0, i.e. V(x,z).
 		// In order to do the proper 3D inverse FT without having to do a complete 3D FFT
 		// we will pre-compute the qy-integral for y=0.
 
-		// kzborder = dkz*(nz/(2*OVERSAMP_Z) -1); 
+		// kzborder = dkz*(nz/(2*OVERSAMP_Z) -1);
 		for (iz=0;iz<nz;iz++) {
-			kz = dkz*(iz<nz/2 ? iz : iz-nz);	
+			kz = dkz*(iz<nz/2 ? iz : iz-nz);
 			// We also need to taper off the potential in z-direction
 			// in order to avoid cutoff artifacts.
 			// zScale = fabs(kz) <= kzborder ? 1.0 : 0.5+0.5*cos(M_PI*(fabs(kz)-kzborder)/(kzmax-kzborder));
 			// printf("iz=%d, kz=%g, zScale=%g ",iz,kz,zScale);
 			for (ix=0;ix<nx;ix++) {
-				kx = dkx*(ix<nx/2 ? ix : ix-nx);	   
+				kx = dkx*(ix<nx/2 ? ix : ix-nx);
 				s2 = (kx*kx+kz*kz);
 				// if this is within the allowed circle:
 				if (s2<smax2) {
@@ -1468,7 +1474,7 @@ fftwf_complex *getAtomPotential3D(int Znum, MULS *muls,double B,int *nzSub,int *
 						}
 						else break;
 					}
-					f *= dkx;  
+					f *= dkx;
 					// note that the factor 2 is missing in the phase (2pi k*r)
 					// this places the atoms in the center of the box.
 					phase	= kx*xPos + kz*zPos;
@@ -1487,7 +1493,7 @@ fftwf_complex *getAtomPotential3D(int Znum, MULS *muls,double B,int *nzSub,int *
 		sprintf(fileName,"pot_rec_%d.img",Znum);
 		imageio->SetThickness(muls->sliceThickness);
 		imageio->WriteComplexImage((void**)temp, fileName);
-#endif	  
+#endif
 		// This converts the 2D kx-kz  map of the scattering factor to a 2D real space map.
 		plan = fftwf_plan_dft_2d(nz,nx,temp,temp,FFTW_BACKWARD,FFTW_ESTIMATE);
 		fftwf_execute(plan);
@@ -1495,9 +1501,9 @@ fftwf_complex *getAtomPotential3D(int Znum, MULS *muls,double B,int *nzSub,int *
 		// dx2 = muls->resolutionX*muls->resolutionX/(OVERSAMP_X*OVERSAMP_X);
 		// dy2 = muls->resolutionY*muls->resolutionY/(OVERSAMP_X*OVERSAMP_X);
 		// dz2 = muls->sliceThickness*muls->sliceThickness/(OVERSAMP_Z*OVERSAMP_Z);
-		// We also make sure that the potential touches zero at least somewhere.  This will avoid 
-		// sharp edges that could produce ringing artifacts.  
-		// It is certainly debatable whether this is a good apprach, or not. 
+		// We also make sure that the potential touches zero at least somewhere.  This will avoid
+		// sharp edges that could produce ringing artifacts.
+		// It is certainly debatable whether this is a good apprach, or not.
 		// printf("Setting up %d x %d potential for Znum=%d, (atom kind %d), Omega=%g\n",nx,nz,Znum,iKind,dkx*dky*dkz);
 		// min = atPot[Znum][ny/2+nx/2*ny+nz/2*nx*ny][0];
 		for (ix=0;ix<nx/2;ix++)  for (iz=0;iz<nz/2;iz++) {
@@ -1511,26 +1517,26 @@ fftwf_complex *getAtomPotential3D(int Znum, MULS *muls,double B,int *nzSub,int *
 			// and divide by unit cell volume (since this is in 3D):
 			// Where does the '1/2' come from???  OVERSAMP_X*OVERSAMP_Y/8 = 1/2
 			// if nothing has changed, then OVERSAMP_X=2 OVERSAMP_Z=18.
-			// remember, that s=0.5*k; 	
+			// remember, that s=0.5*k;
 			// This potential will later again be scaled by lambda*gamma (=0.025*1.39139)
-			atPot[Znum][ind3d][0] = 47.8658*dkx*dkz/(nz)*zScale; 
+			atPot[Znum][ind3d][0] = 47.8658*dkx*dkz/(nz)*zScale;
 
 			// *8*14.4*0.529=4*a0*e (s. Kirkland's book, p. 207)
 			// 2*pi*14.4*0.529 = 7.6176;
-			// if (atPot[Znum][ind3d][0] < min) min = atPot[Znum][ind3d][0];	  
+			// if (atPot[Znum][ind3d][0] < min) min = atPot[Znum][ind3d][0];
 			atPot[Znum][ind3d][1]= 0;
 		}
 		// make sure we don't produce negative potential:
 		// if (min < 0) for (ix=0;ix<nx;ix++) for (iy=0;iy<ny;iy++) atPot[Znum][iy+ix*ny][0] -= min;
 #if SHOW_SINGLE_POTENTIAL
-		imageio = ImageIOPtr(new CImageIO(nz/2, nx/2, 0, muls->sliceThickness/nzPerSlice, 
+		imageio = ImageIOPtr(new CImageIO(nz/2, nx/2, 0, muls->sliceThickness/nzPerSlice,
 			muls->resolutionX/OVERSAMP_X));
 		// This scattering factor agrees with Kirkland's scattering factor fe(q)
 		imageio->SetThickness(nz*muls->sliceThickness/nzPerSlice);
 		sprintf(fileName,"potential_rz_%d.img",Znum);
 		ptr = atPot[Znum];
 		imageio->WriteComplexImage((void**)ptr, fileName);
-#endif	  
+#endif
 		if (muls->printLevel > 1) printf("Created 3D (r-z) %d x %d potential array for Z=%d (%d, B=%g, dkx=%g, dky=%g. dkz=%g,sps=%d)\n",
 			nx/2,nz/2,Znum,iKind,B,dkx,dky,dkz,izOffset);
 	}
@@ -1557,7 +1563,7 @@ fftwf_complex *getAtomPotentialOffset3D(int Znum, MULS *muls,double B,int *nzSub
 	ImageIOPtr imageio = ImageIOPtr();
 	static fftwf_complex *ptr = NULL;
 	static char fileName[256];
-#endif 
+#endif
 	static double *splinb=NULL;
 	static double *splinc=NULL;
 	static double *splind=NULL;
@@ -1577,19 +1583,19 @@ fftwf_complex *getAtomPotentialOffset3D(int Znum, MULS *muls,double B,int *nzSub
 
 		nx = 2*OVERSAMP_X*(int)ceil(muls->atomRadius/muls->resolutionX);
 		ny = 2*OVERSAMP_X*(int)ceil(muls->atomRadius/muls->resolutionY);
-		// The FFT-resolution in the z-direction must be high enough to avoid 
-		// artifacts due to premature cutoff of the rec. space scattering factor 
+		// The FFT-resolution in the z-direction must be high enough to avoid
+		// artifacts due to premature cutoff of the rec. space scattering factor
 		// we will therefore make it roughly the same as the x-resolution
-		// However, we will make sure that a single slice contains an integer number 
+		// However, we will make sure that a single slice contains an integer number
 		// of sampling points.
 		nzPerSlice = (int)floor(OVERSAMP_X*muls->sliceThickness/muls->resolutionX);
 		// make nzPerSlice odd:
 		if (2.0*floor((double)(nzPerSlice >> 1)) == nzPerSlice) nzPerSlice += 1;
-		// Total number of z-positions should be twice that of atomRadius/sliceThickness 
+		// Total number of z-positions should be twice that of atomRadius/sliceThickness
 		nz = (2*(int)ceil(muls->atomRadius/muls->sliceThickness))*nzPerSlice;
 		if (muls->printLevel > 1) printf("Potential offset: will use %d sampling points per slice, total nz=%d (%d)\n",nzPerSlice,nz,nzPerSlice >> 1);
 
-		dkx = 0.5*OVERSAMP_X/(nx*muls->resolutionX);  
+		dkx = 0.5*OVERSAMP_X/(nx*muls->resolutionX);
 		dky = 0.5*OVERSAMP_X/(ny*muls->resolutionY);
 		dkz = nzPerSlice/(double)(nz*muls->sliceThickness);
 		kmax2 = 0.5*nx*dkx/(double)OVERSAMP_X;	// largest k that we'll admit
@@ -1605,16 +1611,16 @@ fftwf_complex *getAtomPotentialOffset3D(int Znum, MULS *muls,double B,int *nzSub
 				for (ix = 0;ix < N_SF-10;ix++) {
 					if (scatParOffs[0][N_SF-4-ix] < scatParOffs[0][N_SF-3]-0.001*(ix+1)) break;
 					scatParOffs[0][N_SF-4-ix] = scatParOffs[0][N_SF-3]-0.001*(ix+1);
-					for (iy=1; iy<N_ELEM;iy++) scatParOffs[iy][N_SF-4-ix] = 0;	
+					for (iy=1; iy<N_ELEM;iy++) scatParOffs[iy][N_SF-4-ix] = 0;
 				}
 			}
 			else {
 				for (ix = 0;ix < 20;ix++) {
 					if (scatParOffs[0][N_SF-4-ix] < scatParOffs[0][N_SF-3]) break;
 					scatParOffs[0][N_SF-4-ix] = scatParOffs[0][N_SF-3];
-					for (iy=1; iy<N_ELEM;iy++) scatParOffs[iy][N_SF-4-ix] = scatParOffs[iy][N_SF-3];	
+					for (iy=1; iy<N_ELEM;iy++) scatParOffs[iy][N_SF-4-ix] = scatParOffs[iy][N_SF-3];
 				}
-			}	   
+			}
 			if (muls->printLevel > 1) printf("getAtomPotentialOffset3D: reduced angular range of scattering factor to %g/A!\n",
 				scatParOffs[0][N_SF-4-ix]);
 		}  // end of if (scatParOffs[0][N_SF-4] > scatParOffs[0][N_SF-3])
@@ -1639,23 +1645,23 @@ fftwf_complex *getAtomPotentialOffset3D(int Znum, MULS *muls,double B,int *nzSub
 
 		atPot[Znum] = (fftwf_complex*)fftwf_malloc(nx*nz/4*sizeof(fftwf_complex));
 		memset(temp,0,nx*nz*sizeof(fftwf_complex));
-		kzmax	 = dkz*nz/2.0; 
+		kzmax	 = dkz*nz/2.0;
 		// define x-and z-position of atom center:
-		// The atom should sit in the top-left corner, 
+		// The atom should sit in the top-left corner,
 		// however (nzPerSlice+1)/2 above zero in z-direction
 		xPos = -2.0*PI*0.0;  // or muls->resolutionX*nx/(OVERSAMP_X), if in center
 		izOffset = (nzPerSlice-1)/2;
 		zPos = -2.0*PI*(muls->sliceThickness/nzPerSlice*(izOffset));
 
-		// kzborder = dkz*(nz/(2*OVERSAMP_Z) -1); 
+		// kzborder = dkz*(nz/(2*OVERSAMP_Z) -1);
 		for (iz=0;iz<nz;iz++) {
-			kz = dkz*(iz<nz/2 ? iz : iz-nz);   
+			kz = dkz*(iz<nz/2 ? iz : iz-nz);
 			// We also need to taper off the potential in z-direction
 			// in order to avoid cutoff artifacts.
 			// zScale = fabs(kz) <= kzborder ? 1.0 : 0.5+0.5*cos(M_PI*(fabs(kz)-kzborder)/(kzmax-kzborder));
 			// printf("iz=%d, kz=%g, zScale=%g ",iz,kz,zScale);
 			for (ix=0;ix<nx;ix++) {
-				kx = dkx*(ix<nx/2 ? ix : ix-nx);	  
+				kx = dkx*(ix<nx/2 ? ix : ix-nx);
 				s2 = (kx*kx+kz*kz);
 				// if this is within the allowed circle:
 				if (s2<kmax2) {
@@ -1673,7 +1679,7 @@ fftwf_complex *getAtomPotentialOffset3D(int Znum, MULS *muls,double B,int *nzSub
 						}
 						else break;
 					}
-					f *= dkx;  
+					f *= dkx;
 					// note that the factor 2 is missing in the phase (2pi k*r)
 					// this places the atoms in the center of the box.
 					phase  = kx*xPos + kz*zPos;
@@ -1688,12 +1694,12 @@ fftwf_complex *getAtomPotentialOffset3D(int Znum, MULS *muls,double B,int *nzSub
 
 
 #if SHOW_SINGLE_POTENTIAL
-		imageio = ImageIOPtr(new CImageIO(nz, nx, 0, dkx, dkz, std::vector<double>(), 
+		imageio = ImageIOPtr(new CImageIO(nz, nx, 0, dkx, dkz, std::vector<double>(),
 			"rec. space potential"));
 		// This scattering factor agrees with Kirkland's scattering factor fe(q)
 		imageio->SetThickness(muls->sliceThickness);
 		imageio->WriteComplexImage((void**)temp, fileName);
-#endif	  
+#endif
 
 		plan = fftwf_plan_dft_2d(nz,nx,temp,temp,FFTW_BACKWARD,FFTW_ESTIMATE);
 		fftwf_execute(plan);
@@ -1701,9 +1707,9 @@ fftwf_complex *getAtomPotentialOffset3D(int Znum, MULS *muls,double B,int *nzSub
 		// dx2 = muls->resolutionX*muls->resolutionX/(OVERSAMP_X*OVERSAMP_X);
 		// dy2 = muls->resolutionY*muls->resolutionY/(OVERSAMP_X*OVERSAMP_X);
 		// dz2 = muls->sliceThickness*muls->sliceThickness/(OVERSAMP_Z*OVERSAMP_Z);
-		// We also make sure that the potential touches zero at least somewhere.  This will avoid 
-		// sharp edges that could produce ringing artifacts.  
-		// It is certainly debatable whether this is a good apprach, or not. 
+		// We also make sure that the potential touches zero at least somewhere.  This will avoid
+		// sharp edges that could produce ringing artifacts.
+		// It is certainly debatable whether this is a good apprach, or not.
 		// printf("Setting up %d x %d potential for Znum=%d, (atom kind %d), Omega=%g\n",nx,nz,Znum,iKind,dkx*dky*dkz);
 		// min = atPot[Znum][ny/2+nx/2*ny+nz/2*nx*ny][0];
 		for (ix=0;ix<nx/2;ix++)  for (iz=0;iz<nz/2;iz++) {
@@ -1717,20 +1723,20 @@ fftwf_complex *getAtomPotentialOffset3D(int Znum, MULS *muls,double B,int *nzSub
 			// and divide by unit cell volume (since this is in 3D):
 			// Where does the '1/2' come from???  OVERSAMP_X*OVERSAMP_Y/8 = 1/2
 			// if nothing has changed, then OVERSAMP_X=2 OVERSAMP_Z=18.
-			// remember, that s=0.5*k;	   
+			// remember, that s=0.5*k;
 			// This potential will later again be scaled by lambda*gamma (=0.025*1.39139)
-			atPot[Znum][ind3d][0] = 47.8658*dkx*dkz/(nz)*zScale; 
+			atPot[Znum][ind3d][0] = 47.8658*dkx*dkz/(nz)*zScale;
 			atPot[Znum][ind3d][1] = 0;
 		}
 #if SHOW_SINGLE_POTENTIAL
-		imageio = ImageIOPtr(new CImageIO(nz/2, nx/2, 0, muls->resolutionX/OVERSAMP_X, 
+		imageio = ImageIOPtr(new CImageIO(nz/2, nx/2, 0, muls->resolutionX/OVERSAMP_X,
 		muls->sliceThickness/nzPerSlice));
 		// This scattering factor agrees with Kirkland's scattering factor fe(q)
 		imageio->SetThickness(nz*muls->sliceThickness/nzPerSlice);
 		sprintf(fileName,"potentialOffs_rz_%d.img",Znum);
 		ptr = atPot[Znum];
 		imageio->WriteComplexImage((void**)ptr, fileName);
-#endif	  
+#endif
 		if (muls->printLevel > 1) printf("Created 3D (r-z) %d x %d potential offset array for Z=%d (%d, B=%g, dkx=%g, dky=%g. dkz=%g,sps=%d)\n",
 			nx/2,nz/2,Znum,iKind,B,dkx,dky,dkz,izOffset);
 	}
@@ -1757,7 +1763,7 @@ fftwf_complex *getAtomPotential2D(int Znum, MULS *muls,double B) {
 #if SHOW_SINGLE_POTENTIAL == 1
 	ImageIOPtr imageio = ImageIOPtr();
 	static char fileName[256];
-#endif 
+#endif
 	static double *splinb=NULL;
 	static double *splinc=NULL;
 	static double *splind=NULL;
@@ -1772,7 +1778,7 @@ fftwf_complex *getAtomPotential2D(int Znum, MULS *muls,double B) {
 
 		nx = 2*OVERSAMP_X*(int)ceil(muls->atomRadius/muls->resolutionX);
 		ny = 2*OVERSAMP_X*(int)ceil(muls->atomRadius/muls->resolutionY);
-		dkx = 0.5*OVERSAMP_X/((nx)*muls->resolutionX);  
+		dkx = 0.5*OVERSAMP_X/((nx)*muls->resolutionX);
 		dky = 0.5*OVERSAMP_X/((ny)*muls->resolutionY);
 		kmax2 = 0.5*nx*dkx/(double)OVERSAMP_X;  // largest k that we'll admit
 
@@ -1787,7 +1793,7 @@ fftwf_complex *getAtomPotential2D(int Znum, MULS *muls,double B) {
 				for (ix = 0;ix < N_SF-10;ix++) {
 					if (scatPar[0][N_SF-4-ix] < scatPar[0][N_SF-3]-0.001*(ix+1)) break;
 					scatPar[0][N_SF-4-ix] = scatPar[0][N_SF-3]-0.001*(ix+1);
-					for (iy=1; iy<N_ELEM;iy++) scatPar[iy][N_SF-4-ix] = 0;	
+					for (iy=1; iy<N_ELEM;iy++) scatPar[iy][N_SF-4-ix] = 0;
 				}
 			}
 
@@ -1811,9 +1817,9 @@ fftwf_complex *getAtomPotential2D(int Znum, MULS *muls,double B) {
 		// memset(temp,0,nx*nz*sizeof(fftwf_complex));
 		memset(atPot[Znum],0,nx*ny*sizeof(fftwf_complex));
 		for (ix=0;ix<nx;ix++) {
-			kx = dkx*(ix<nx/2 ? ix : nx-ix);      
+			kx = dkx*(ix<nx/2 ? ix : nx-ix);
 			for (iy=0;iy<ny;iy++) {
-				ky = dky*(iy<ny/2 ? iy : ny-iy);      
+				ky = dky*(iy<ny/2 ? iy : ny-iy);
 				s2 = (kx*kx+ky*ky);
 				// if this is within the allowed circle:
 				if (s2<kmax2) {
@@ -1829,28 +1835,28 @@ fftwf_complex *getAtomPotential2D(int Znum, MULS *muls,double B) {
 			}
 		}
 #if SHOW_SINGLE_POTENTIAL == 1
-		imageio = ImageIOPtr(new CImageIO(ny, nx, 0, dkx, dky, std::vector<double>(), 
+		imageio = ImageIOPtr(new CImageIO(ny, nx, 0, dkx, dky, std::vector<double>(),
 		"potential"));
 		// This scattering factor agrees with Kirkland's scattering factor fe(q)
 		imageio->SetThickness(muls->sliceThickness);
 		imageio->WriteComplexImage((void**)atPot[Znum], fileName);
-#endif    
+#endif
 		plan = fftwf_plan_dft_2d(nx,ny,atPot[Znum],atPot[Znum],FFTW_BACKWARD,FFTW_ESTIMATE);
 		fftwf_execute(plan);
 		fftwf_destroy_plan(plan);
 		for (ix=0;ix<nx;ix++) for (iy=0;iy<ny;iy++) {
-				atPot[Znum][iy+ix*ny][0] *= dkx*dky*(OVERSAMP_X*OVERSAMP_X);  
+				atPot[Znum][iy+ix*ny][0] *= dkx*dky*(OVERSAMP_X*OVERSAMP_X);
 		}
 		// make sure we don't produce negative potential:
 		// if (min < 0) for (ix=0;ix<nx;ix++) for (iy=0;iy<ny;iy++) atPot[Znum][iy+ix*ny][0] -= min;
 #if SHOW_SINGLE_POTENTIAL == 1
-		imageio = ImageIOPtr(new CImageIO(nx, ny, 0, muls->resolutionX/OVERSAMP_X, 
+		imageio = ImageIOPtr(new CImageIO(nx, ny, 0, muls->resolutionX/OVERSAMP_X,
 			muls->resolutionY/OVERSAMP_X, std::vector<double>(), "potential"));
 		// This scattering factor agrees with Kirkland's scattering factor fe(q)
 		//imageio->SetThickness(nz*muls->sliceThickness/nzPerSlice);
 		sprintf(fileName,"potential_%d.img",Znum);
 		imageio->WriteComplexImage((void**)atPot[Znum], fileName);
-#endif    
+#endif
 		printf("Created 2D %d x %d potential array for Z=%d (%d, B=%g A^2)\n",nx,ny,Znum,iKind,B);
 	}
 	return atPot[Znum];
@@ -1866,10 +1872,10 @@ void writePix(char *outFile,fftw_complex **pict,MULS *muls,int iz) {
 	rmin  = pict[0][0][0];
 	rmax  = rmin;
 
-	sparam = float1D( NPARAM, "sparam" );    
+	sparam = float1D( NPARAM, "sparam" );
 
 	for( i=0; i<(*muls).nx; i++)
-		for(j=0; j<(*muls).ny; j++) 
+		for(j=0; j<(*muls).ny; j++)
 		{
 			if(pict[i][j][0] < rmin ) rmin = pict[i][j][0];
 			if(pict[i][j][0] > rmax ) rmax = pict[i][j][0];
@@ -1907,31 +1913,31 @@ void writePix(char *outFile,fftw_complex **pict,MULS *muls,int iz) {
 
 
 /**********************************************
-* This function creates a incident STEM probe 
+* This function creates a incident STEM probe
 * at position (dx,dy)
 * with parameters given in muls
 *
 * The following Abberation functions are being used:
-* 1) ddf = Cc*dE/E + Cc2*(dE/E)^2,    
+* 1) ddf = Cc*dE/E + Cc2*(dE/E)^2,
 *    Cc, Cc2 = chrom. Abber. (1st, 2nd order) [1]
 * 2) chi(qx,qy) = (2*pi/lambda)*{0.5*C1*(qx^2+qy^2)+
 *                 0.5*C12a*(qx^2-qy^2)+
 *                 C12b*qx*qy+
 *                 C21a/3*qx*(qx^2+qy^2)+
-*                 ... 
+*                 ...
 *                 +0.5*C3*(qx^2+qy^2)^2
 *                 +0.125*C5*(qx^2+qy^2)^3
 *                 ... (need to finish)
 *
 *
-*    qx = acos(kx/K), qy = acos(ky/K) 
+*    qx = acos(kx/K), qy = acos(ky/K)
 *
 * References:
-* [1] J. Zach, M. Haider, 
-*    "Correction of spherical and Chromatic Abberation 
+* [1] J. Zach, M. Haider,
+*    "Correction of spherical and Chromatic Abberation
 *     in a low Voltage SEM", Optik 98 (3), 112-118 (1995)
 * [2] O.L. Krivanek, N. Delby, A.R. Lupini,
-*    "Towards sub-Angstroem Electron Beams", 
+*    "Towards sub-Angstroem Electron Beams",
 *    Ultramicroscopy 78, 1-11 (1999)
 *
 *********************************************/
@@ -1945,7 +1951,7 @@ void probeShiftAndCrop(MULS *muls, WavePtr wave, double dx, double dy, double cn
 	// This function takes an input wave and shifts it by [dx,dy] and crops it to [cnx,cny]
 	// In general the input wave should have wave.nx > nx + 2*abs(dx) and wave.ny > ny + 2*abs(dy) for a scanned system
 
-	// 
+	//
 	printf("Debug: probeShiftAndCrop does nothing at present\n");
 }
 
@@ -1964,13 +1970,13 @@ void probe(MULS *muls, WavePtr wave, double dx, double dy)
 
 	// FILE *fp=NULL;
 
-	/* temporary fix, necessary, because fftw has rec. space zero 
+	/* temporary fix, necessary, because fftw has rec. space zero
 	in center of image:
 	*/
 	nx = (*muls).nx;
 	ny = (*muls).ny;
-	ax = nx*(*muls).resolutionX; 
-	by = ny*(*muls).resolutionY; 
+	ax = nx*(*muls).resolutionX;
+	by = ny*(*muls).resolutionY;
 	dx = ax-dx;
 	dy = by-dy;
 	gaussScale = (*muls).gaussScale;
@@ -1996,8 +2002,8 @@ void probe(MULS *muls, WavePtr wave, double dx, double dy)
 	}
 
 	/**********************************************************
-	*  Calculate misc constants  
-	*********************************************************/  
+	*  Calculate misc constants
+	*********************************************************/
 	time = cputim( );
 	pi = 4.0 * atan( 1.0 );
 
@@ -2026,7 +2032,7 @@ void probe(MULS *muls, WavePtr wave, double dx, double dy)
 	k2max = sin(alpha)/wavlen;  /* = K0*sin(alpha) */
 	k2max = k2max * k2max;
 
-	/*   Calculate MTF 
+	/*   Calculate MTF
 	NOTE zero freg is in the bottom left corner and
 	expandes into all other corners - not in the center
 	this is required for FFT
@@ -2040,7 +2046,7 @@ void probe(MULS *muls, WavePtr wave, double dx, double dy)
 
 	/*
 	if ((muls.a33 == 0) && (muls.a31 == 0) && (muls.a44 == 0) && (muls.a42 == 0) &&
-	(muls.a55 == 0) && (muls.a53 == 0) && (muls.a51 == 0) && 
+	(muls.a55 == 0) && (muls.a53 == 0) && (muls.a51 == 0) &&
 	(muls.a66 == 0) && (muls.a64 == 0) && (muls.a62 == 0) && (muls.C5 == 0)) {
 	CsDefAstOnly = 1;
 	}
@@ -2057,20 +2063,20 @@ void probe(MULS *muls, WavePtr wave, double dx, double dy)
 			ktheta2 = k2*(wavlen*wavlen);
 			ktheta = sqrt(ktheta2);
 			phi = atan2(ry*ky,rx*kx);
-			// compute the effective defocus from the actual defocus and the astigmatism: 
+			// compute the effective defocus from the actual defocus and the astigmatism:
 			// df_eff = df + muls->astigMag*cos(muls->astigAngle+phi);
 
 			// chi = chi1*k2*(df_eff +chi2*k2)-2.0*pi*( (dx*kx/ax) + (dy*ky/by) );
 			// defocus, astigmatism, and shift:
 			chi = ktheta2*(muls->df0+delta + muls->astigMag*cos(2.0*(phi-muls->astigAngle)))/2.0;
-			ktheta2 *= ktheta;  // ktheta^3 
+			ktheta2 *= ktheta;  // ktheta^3
 			if ((muls->a33 > 0) || (muls->a31 > 0)) {
 				chi += ktheta2*(muls->a33*cos(3.0*(phi-muls->phi33))+muls->a31*cos(phi-muls->phi31))/3.0;
-			}	
+			}
 			ktheta2 *= ktheta;   // ktheta^4
 			if ((muls->a44 > 0) || (muls->a42 > 0) || (muls->Cs != 0)) {
 				// chi += ktheta2*(muls->a33*cos(3*(phi-muls->phi33))+muls->a31*cos(phi-muls->phi31))/3.0;
-				chi += ktheta2*(muls->a44*cos(4.0*(phi-muls->phi44))+muls->a42*cos(2.0*(phi-muls->phi42))+muls->Cs)/4.0;  
+				chi += ktheta2*(muls->a44*cos(4.0*(phi-muls->phi44))+muls->a42*cos(2.0*(phi-muls->phi42))+muls->Cs)/4.0;
 				//                     1/4*(a(4,4).*cos(4*(kphi-phi(4,4)))+a(4,2).*cos(2*(kphi-phi(4,2)))+c(4)).*ktheta.^4+...
 			}
 			ktheta2 *= ktheta;    // ktheta^5
@@ -2089,15 +2095,15 @@ void probe(MULS *muls, WavePtr wave, double dx, double dy)
 			// include higher order aberrations
 
 
-			if ( ( (*muls).ismoth != 0) && 
+			if ( ( (*muls).ismoth != 0) &&
 				( fabs(k2-k2max) <= pixel)) {
 					wave->wave[ix][iy][0]= (float) ( 0.5*scale * cos(chi));
 					wave->wave[ix][iy][1]= (float) (-0.5*scale* sin(chi));
-			} 
+			}
 			else if ( k2 <= k2max ) {
 				wave->wave[ix][iy][0]= (float)  scale * cos(chi);
 				wave->wave[ix][iy][1]= (float) -scale * sin(chi);
-			} 
+			}
 			else {
 				wave->wave[ix][iy][0] = wave->wave[ix][iy][1] = 0.0f;
 			}
@@ -2122,7 +2128,7 @@ void probe(MULS *muls, WavePtr wave, double dx, double dy)
 				wave->wave[ix][iy][0] *= (float)r;
 				wave->wave[ix][iy][1] *= (float)r;
 			}
-		}  
+		}
 	}
 
 	/* Apply AIS aperture in Real Space */
@@ -2150,7 +2156,7 @@ void probe(MULS *muls, WavePtr wave, double dx, double dy)
 	/*  Normalize probe intensity to unity  */
 
 	sum = 0.0;
-	for( ix=0; ix<nx; ix++) for( iy=0; iy<ny; iy++) 
+	for( ix=0; ix<nx; ix++) for( iy=0; iy<ny; iy++)
 		sum +=  wave->wave[ix][iy][0]*wave->wave[ix][iy][0]
 	+ wave->wave[ix][iy][1]*wave->wave[ix][iy][1];
 
@@ -2158,7 +2164,7 @@ void probe(MULS *muls, WavePtr wave, double dx, double dy)
 	scale = scale * ((double)nx) * ((double)ny);
 	scale = (double) sqrt( scale );
 
-	for( ix=0; ix<nx; ix++) 
+	for( ix=0; ix<nx; ix++)
 		for( iy=0; iy<ny; iy++) {
 			wave->wave[ix][iy][0] *= (float) scale;
 			wave->wave[ix][iy][1] *= (float) scale;
@@ -2224,20 +2230,20 @@ void initSTEMSlices(MULS *muls, int nlayer) {
 		ky     = float1D(ny, "ky" );
 		*/
 		for(ix=0; ix<nx; ix++) {
-			kx = (ix>nx/2) ? (real)(ix-nx)/(*muls).potSizeX : 
+			kx = (ix>nx/2) ? (real)(ix-nx)/(*muls).potSizeX :
 				(real)ix/(*muls).potSizeX;
 		kx2[ix] = kx*kx;
 		/*
-		kx[ix] = (ix>nx/2) ? (real)(ix-nx)/(*muls).potSizeX : 
+		kx[ix] = (ix>nx/2) ? (real)(ix-nx)/(*muls).potSizeX :
 		(real)ix/(*muls).potSizeX;
 		kx2[ix] = kx[ix]*kx[ix];
 		*/
 		}
 		for( iy=0; iy<ny; iy++) {
-			ky = (iy>ny/2) ? 
+			ky = (iy>ny/2) ?
 				(real)(iy-ny)/(*muls).by : (real)iy/(*muls).potSizeY;
 			ky2[iy] = ky*ky;
-		}    
+		}
 		if (muls->printLevel > 2) printf("Reciprocal lattice vector arrays initialized ... \n");
 	}
 	/**************************************************/
@@ -2270,7 +2276,7 @@ void initSTEMSlices(MULS *muls, int nlayer) {
 	/**************************************************************
 	* read in the potential layers and exponentiate them
 	* to form the transmission function exp(-i*phi(x)) = transr/i
-	* 
+	*
 	* This is independent of kx, ky - so we can load these arrays once,
 	* and keep them for all inc. beam angles
 	*
@@ -2286,9 +2292,9 @@ void initSTEMSlices(MULS *muls, int nlayer) {
 
 	fftScale = 1.0/(nx*ny);
 	vzscale= 1.0;
-	timer1 = cputim();    
-	for( ilayer=0;  ilayer<nlayer; ilayer++ ) {     
-		timer2 = cputim();    
+	timer1 = cputim();
+	for( ilayer=0;  ilayer<nlayer; ilayer++ ) {
+		timer2 = cputim();
 		for( iy=0; iy<ny; iy++) for( ix=0; ix<nx; ix++) {
 			vz= muls->trans[ilayer][ix][iy][0]*scale;  // scale = lambda*gamma
 			// include absorption:
@@ -2301,17 +2307,17 @@ void initSTEMSlices(MULS *muls, int nlayer) {
 
 	/*******************************************************************
 	* FFT/IFFT the transmit functions in order to bandwidth limit them
-	*******************************************************************/ 
+	*******************************************************************/
 	if (muls->bandlimittrans) {
-		timer2 = cputim();    
+		timer2 = cputim();
 #if FLOAT_PRECISION == 1
 		fftwf_execute(muls->fftPlanPotForw);
 #else
 		fftw_execute(muls->fftPlanPotForw);
 #endif
 		time2 = cputim()-timer2;
-		//     printf("%g sec used for 1st set of FFTs\n",time2);  
-		for( ilayer=0;  ilayer<nlayer; ilayer++ ) {     
+		//     printf("%g sec used for 1st set of FFTs\n",time2);
+		for( ilayer=0;  ilayer<nlayer; ilayer++ ) {
 			for( ix=0; ix<nx; ix++) for( iy=0; iy<ny; iy++) {
 				k2= ky2[iy] + kx2[ix];
 				if (k2 < k2max) {
@@ -2322,10 +2328,10 @@ void initSTEMSlices(MULS *muls, int nlayer) {
 				else {
 					(*muls).trans[ilayer][ix][iy][0] = 0.0F;
 					(*muls).trans[ilayer][ix][iy][1] = 0.0F;
-				}	
+				}
 			}
 		}  /* end for(ilayer=... */
-		timer2 = cputim();    
+		timer2 = cputim();
 		// old code: fftwnd_one((*muls).fftPlanPotInv, (*muls).trans[ilayer][0], NULL);
 #if FLOAT_PRECISION == 1
 		fftwf_execute(muls->fftPlanPotInv);
@@ -2347,7 +2353,7 @@ void initSTEMSlices(MULS *muls, int nlayer) {
 
 		if (printFlag)
 			printf("Number of symmetrical non-aliasing beams = %d\n", nbeams);
-	}  
+	}
 
 	/*
 	printf("Size in pixels Nx x Ny= %d x %d = %d beams\n",
@@ -2363,17 +2369,17 @@ void initSTEMSlices(MULS *muls, int nlayer) {
 
 /******************************************************************
 * runMulsSTEM() - do the multislice propagation in STEM/CBED mode
-* 
+*
 *    Each probe position is running this function.  Each CPU is thus
 *      running a separate instance of the function.  It is nested in
 *      the main OpenMP parallel region - specifying critical, single, and
 *      barrier OpenMP pragmas should be OK.
 *
-* waver, wavei are expected to contain incident wave function 
+* waver, wavei are expected to contain incident wave function
 * they will be updated at return
 *****************************************************************/
 int runMulsSTEM(MULS *muls, WavePtr wave) {
-	int printFlag = 0; 
+	int printFlag = 0;
 	int showEverySlice=1;
 	int islice,i,ix,iy,mRepeat;
 	real cztot=0.0;
@@ -2400,9 +2406,9 @@ int runMulsSTEM(MULS *muls, WavePtr wave) {
 
 	scale = 1.0F / (((real)muls->nx) * ((real)muls->ny));
 
-	for (mRepeat = 0; mRepeat < muls->mulsRepeat1; mRepeat++) 
+	for (mRepeat = 0; mRepeat < muls->mulsRepeat1; mRepeat++)
 	{
-		for( islice=0; islice < muls->slices; islice++ ) 
+		for( islice=0; islice < muls->slices; islice++ )
 		{
 			absolute_slice = (muls->totalSliceCount+islice);
 
@@ -2413,8 +2419,8 @@ int runMulsSTEM(MULS *muls, WavePtr wave) {
 			* Transmit is a simple multiplication of wave with trans in real space
 			**********************************************************************/
 			transmit((void **)wave->wave, (void **)(muls->trans[islice]), muls->nx,muls->ny, wave->iPosX, wave->iPosY);
-			//    writeImage_old(wave,(*muls).nx,(*muls).ny,(*muls).thickness,"wavet.img");      
-			/***************************************************** 
+			//    writeImage_old(wave,(*muls).nx,(*muls).ny,(*muls).thickness,"wavet.img");
+			/*****************************************************
 			* remember: prop must be here to anti-alias
 			* propagate is a simple multiplication of wave with prop
 			* but it also takes care of the bandwidth limiting
@@ -2445,7 +2451,7 @@ int runMulsSTEM(MULS *muls, WavePtr wave) {
 			/*
 			sprintf(outStr,"wave%d.img",islice);
 			writeImage_old(wave,(*muls).nx,(*muls).ny,(*muls).thickness,"wavep.img");
-			*/    
+			*/
 
 			// write the intermediate TEM wave function:
 
@@ -2461,7 +2467,7 @@ int runMulsSTEM(MULS *muls, WavePtr wave) {
 				}
 				sum *= scale;
 
-				sprintf(outStr,"position (%3d, %3d), slice %4d (%.2f), int. = %f", 
+				sprintf(outStr,"position (%3d, %3d), slice %4d (%.2f), int. = %f",
 					wave->detPosX, wave->detPosY,
 					muls->totalSliceCount+islice,wave->thickness,sum );
 				if (showEverySlice)
@@ -2471,13 +2477,15 @@ int runMulsSTEM(MULS *muls, WavePtr wave) {
 					for (i=0;i<(int)strlen(outStr);i++) printf("\b");
 				}
 			}
-			
+
+
 			if ( (muls->mode == TEM) || ((muls->mode == CBED) && (muls->saveLevel > 1)) || ((muls->mode == NBED) && (muls->saveLevel > 1)) )
 			{
-				// TODO (MCS 2013/04): this restructure probably broke this file saving - 
+				// TODO (MCS 2013/04): this restructure probably broke this file saving -
 				//   need to rewrite a function to save things for TEM/CBED?
 				// This used to call interimWave(muls,wave,muls->totalSliceCount+islice*(1+mRepeat));
-				interimWave(muls,wave,absolute_slice*(1+mRepeat)); 
+
+				interimWave(muls,wave,absolute_slice*(1+mRepeat));
 				collectIntensity(muls,wave,absolute_slice*(1+mRepeat));
 			}
 		} /* end for(islice...) */
@@ -2519,7 +2527,7 @@ int runMulsSTEM(MULS *muls, WavePtr wave) {
 
 	if (printFlag) {
 		printf( "pix range %g to %g real,\n"
-			"          %g to %g imag\n",  
+			"          %g to %g imag\n",
 			(*muls).rmin,(*muls).rmax,(*muls).aimin,(*muls).aimax);
 
 	}
@@ -2527,7 +2535,7 @@ int runMulsSTEM(MULS *muls, WavePtr wave) {
 		if ((muls->saveLevel > 1) || (muls->cellDiv > 1)) {
 			wave->WriteWave(wave->fileout);
 			if (printFlag)
-				printf("Created complex image file %s\n",(*wave).fileout);    
+				printf("Created complex image file %s\n",(*wave).fileout);
 		}
 	}
 	return 0;
@@ -2538,19 +2546,20 @@ int runMulsSTEM(MULS *muls, WavePtr wave) {
 // save the current wave function at this intermediate thickness:
 void interimWave(MULS *muls,WavePtr wave,int slice) {
 	int t;
-	char fileName[256]; 
+	char fileName[256];
 	std::vector<double> params(9);
+
 
 	if ((slice < muls->slices*muls->cellDiv-1) && ((slice+1) % muls->outputInterval != 0)) return;
 
 	t = (int)((slice)/muls->outputInterval);
 	// write the high tension, too:
-	
+
 	params[0] = muls->v0;  				// high voltage
 	params[1] = muls->Cs;				// spherical aberration
 	params[2] = muls->df0;				// defocus
 	params[3] = muls->astigMag;			// astigmatism
-	params[4] = muls->astigAngle;	
+	params[4] = muls->astigAngle;
 	params[5] = muls->Cc * sqrt(muls->dE_E*muls->dE_E+muls->dV_V*muls->dV_V+muls->dI_I*muls->dI_I);	// focal spread
 	params[6] = muls->alpha;			// illumination convergence angle
 	params[7] = muls->btiltx;			// beam tilt in mrad
@@ -2570,15 +2579,15 @@ void interimWave(MULS *muls,WavePtr wave,int slice) {
 * collect the STEM signal on the annular detector(s) defined in muls
 * and write the appropriate pixel in the image for each detector and thickness
 * The number of images is determined by the following formula:
-* muls->slices*muls->cellDiv/muls->outputInterval 
+* muls->slices*muls->cellDiv/muls->outputInterval
 * There are muls->detectorNum different detectors
 *******************************************************************/
-void collectIntensity(MULS *muls, WavePtr wave, int slice) 
+void collectIntensity(MULS *muls, WavePtr wave, int slice)
 {
 	int i,ix,iy,ixs,iys,t;
 	real k2;
 	double intensity,scale,scaleCBED,scaleDiff,intensity_save;
-	char fileName[256],avgName[256]; 
+	char fileName[256],avgName[256];
 	float_tt **diffpatAvg = NULL;
 	int tCount = 0;
 
@@ -2590,7 +2599,7 @@ void collectIntensity(MULS *muls, WavePtr wave, int slice)
 
 	tCount = (int)(ceil((double)((muls->slices * muls->cellDiv) / muls->outputInterval)));
 
-	// we write directly to the shared muls object.  This is safe only because 
+	// we write directly to the shared muls object.  This is safe only because
 	//    each thread is accessing different pixels in the output images.
 	detectors = muls->detectors;
 
@@ -2612,17 +2621,17 @@ void collectIntensity(MULS *muls, WavePtr wave, int slice)
 	int position_offset = wave->detPosY * muls->scanXN + wave->detPosX;
 
 	// Multiply each image by its number of averages and divide by it later again:
-	for (i=0;i<muls->detectorNum;i++) 
+	for (i=0;i<muls->detectorNum;i++)
 	{
-		detectors[t][i]->image[wave->detPosX][wave->detPosY]  *= detectors[t][i]->Navg;	
-		detectors[t][i]->image2[wave->detPosX][wave->detPosY] *= detectors[t][i]->Navg;	
+		detectors[t][i]->image[wave->detPosX][wave->detPosY]  *= detectors[t][i]->Navg;
+		detectors[t][i]->image2[wave->detPosX][wave->detPosY] *= detectors[t][i]->Navg;
 		detectors[t][i]->error = 0;
 	}
-	/* add the intensities in the already 
+	/* add the intensities in the already
 	fourier transformed wave function */
-	for (ix = 0; ix < muls->nx; ix++) 
+	for (ix = 0; ix < muls->nx; ix++)
 	{
-		for (iy = 0; iy < muls->ny; iy++) 
+		for (iy = 0; iy < muls->ny; iy++)
 		{
 			k2 = muls->kx2[ix]+muls->ky2[iy];
 			intensity = (wave->wave[ix][iy][0]*wave->wave[ix][iy][0]+
@@ -2630,21 +2639,21 @@ void collectIntensity(MULS *muls, WavePtr wave, int slice)
 			wave->diffpat[(ix+muls->nx/2)%muls->nx][(iy+muls->ny/2)%muls->ny] = intensity*scaleDiff;
 			intensity *= scale;
 			for (i=0;i<muls->detectorNum;i++) {
-				if ((k2 >= detectors[t][i]->k2Inside) && (k2 <= detectors[t][i]->k2Outside)) 
+				if ((k2 >= detectors[t][i]->k2Inside) && (k2 <= detectors[t][i]->k2Outside))
 				{
 					// detector in center of diffraction pattern:
-					if ((detectors[t][i]->shiftX == 0) && (detectors[t][i]->shiftY == 0)) 
+					if ((detectors[t][i]->shiftX == 0) && (detectors[t][i]->shiftY == 0))
 					{
 						detectors[t][i]->image[wave->detPosX][wave->detPosY] += intensity;
 						// misuse the error number for collecting this pixels raw intensity
 						detectors[t][i]->error += intensity;
 					}
-					/* special case for shifted detectors: */		
-					else 
+					/* special case for shifted detectors: */
+					else
 					{
 						intensity_save = intensity;
 						ixs = (ix+(int)detectors[t][i]->shiftX+muls->nx) % muls->nx;
-						iys = (iy+(int)detectors[t][i]->shiftY+muls->ny) % muls->ny;	    
+						iys = (iy+(int)detectors[t][i]->shiftY+muls->ny) % muls->ny;
 						intensity = scale * (wave->wave[ixs][iys][0]*wave->wave[ixs][iys][0]+
 							wave->wave[ixs][iys][1]*wave->wave[ixs][iys][1]);
 						detectors[t][i]->image[wave->detPosX][wave->detPosY] += intensity;
@@ -2679,10 +2688,10 @@ void collectIntensity(MULS *muls, WavePtr wave, int slice)
 	for (i=0;i<muls->detectorNum;i++) {
 		// add intensity squared to image2 for this detector and pixel, then rescale:
 		detectors[t][i]->image2[wave->detPosX][wave->detPosY] += detectors[t][i]->error*detectors[t][i]->error;
-		detectors[t][i]->image2[wave->detPosX][wave->detPosY] /= detectors[t][i]->Navg+1;	
+		detectors[t][i]->image2[wave->detPosX][wave->detPosY] /= detectors[t][i]->Navg+1;
 
 		// do the rescaling for the average image:
-		detectors[t][i]->image[wave->detPosX][wave->detPosY] /= detectors[t][i]->Navg+1;	
+		detectors[t][i]->image[wave->detPosX][wave->detPosY] /= detectors[t][i]->Navg+1;
 	}
 }
 
@@ -2694,7 +2703,7 @@ void saveSTEMImages(MULS *muls)
 {
 	int i, ix, islice;
 	double intensity;
-	static char fileName[256]; 
+	static char fileName[256];
 	//imageStruct *header = NULL;
 	std::vector<DetectorPtr> detectors;
 	float t;
@@ -2715,12 +2724,12 @@ void saveSTEMImages(MULS *muls)
 		detectors = muls->detectors[islice];
 		// write the output STEM images:
 		// This is done only after all pixels have completed, so that image is complete.
-		for (i=0; i<muls->detectorNum; i++) 
+		for (i=0; i<muls->detectorNum; i++)
 		{
 			// calculate the standard error for this image:
 			detectors[i]->error = 0;
 			intensity             = 0;
-			for (ix=0; ix<muls->scanXN * muls->scanYN; ix++) 
+			for (ix=0; ix<muls->scanXN * muls->scanYN; ix++)
 			{
 				detectors[i]->error += (detectors[i]->image2[0][ix]-
 					detectors[i]->image[0][ix] * detectors[i]->image[0][ix]);
@@ -2739,7 +2748,7 @@ void saveSTEMImages(MULS *muls)
 			detectors[i]->SetParameter(0, (double)muls->avgCount+1);
 			detectors[i]->SetParameter(1, (double)detectors[i]->error);
 
-			for (ix=0; ix<muls->scanXN * muls->scanYN; ix++) 
+			for (ix=0; ix<muls->scanXN * muls->scanYN; ix++)
 			{
 				detectors[i]->SetParameter(2+ix, (double)detectors[i]->image2[0][ix]);
 			}
@@ -2754,14 +2763,14 @@ void readStartWave(WavePtr wave) {
 
 
 /******************************************************************
-* propagate_slow() 
+* propagate_slow()
 * replicates the original way, mulslice did it:
 *****************************************************************/
 void propagate_slow(void **w,int nx, int ny,MULS *muls)
 {
 	int ixa, iya;
 	real wr, wi, tr, ti,ax,by;
-	real scale,t,dz; 
+	real scale,t,dz;
 	static real dzs=0;
 	static real *propxr=NULL,*propyr=NULL;
 	static real *propxi=NULL,*propyi=NULL;
@@ -2796,7 +2805,7 @@ void propagate_slow(void **w,int nx, int ny,MULS *muls)
 		wavlen = wavelength((*muls).v0);
 
 		for( ixa=0; ixa<nx; ixa++) {
-			kx[ixa] = (ixa>nx/2) ? (real)(ixa-nx)/ax : 
+			kx[ixa] = (ixa>nx/2) ? (real)(ixa-nx)/ax :
 				(real)ixa/ax;
 			kx2[ixa] = kx[ixa]*kx[ixa];
 			t = scale * (kx2[ixa]*wavlen);
@@ -2804,8 +2813,8 @@ void propagate_slow(void **w,int nx, int ny,MULS *muls)
 			propxi[ixa] = (real) -sin(t);
 		}
 		for( iya=0; iya<ny; iya++) {
-			ky[iya] = (iya>ny/2) ? 
-				(real)(iya-ny)/by : 
+			ky[iya] = (iya>ny/2) ?
+				(real)(iya-ny)/by :
 			(real)iya/by;
 			ky2[iya] = ky[iya]*ky[iya];
 			t = scale * (ky2[iya]*wavlen);
@@ -2821,7 +2830,7 @@ void propagate_slow(void **w,int nx, int ny,MULS *muls)
 		(*muls).ky2=ky2;
 		(*muls).kx=kx;
 		(*muls).ky=ky;
-	} 
+	}
 	/* end of: if dz != dzs */
 	/*************************************************************/
 
@@ -2852,7 +2861,7 @@ void propagate_slow(void **w,int nx, int ny,MULS *muls)
 
 /*------------------------ transmit() ------------------------*/
 /*
-transmit the wavefunction thru one layer 
+transmit the wavefunction thru one layer
 (simply multiply wave by transmission function)
 
 waver,i[ix][iy]  = real and imaginary parts of wavefunction
@@ -2923,7 +2932,7 @@ void showPotential(fftw_complex ***pot,int nz,int nx,int ny,double dx,double dy,
 	if (data == NULL)
 		data = (fftw_complex *)malloc(length * sizeof(fftw_complex));
 
-	/* 
+	/*
 	copy data to array
 	*/
 
@@ -2946,8 +2955,8 @@ void showPotential(fftw_complex ***pot,int nz,int nx,int ny,double dx,double dy,
 		fprintf( fpPot, "%g", r );
 		fprintf( fpPot, "\t%g\t%g", data[ix][0], data[ix][1] );
 		/*    for (iz = 0;iz < ((nz>10) ? 10 : nz);iz++) {
-		r = sqrt(ix*ix*(dx*dx+dy*dy)+iz*iz*dz*dz);      
-		fprintf(fpPot,"\t%g",pot[iz][ix][ix][0]*r);      
+		r = sqrt(ix*ix*(dx*dx+dy*dy)+iz*iz*dz*dz);
+		fprintf(fpPot,"\t%g",pot[iz][ix][ix][0]*r);
 		}
 		*/
 		fprintf( fpPot, "\n" );
@@ -2960,7 +2969,7 @@ void showPotential(fftw_complex ***pot,int nz,int nx,int ny,double dx,double dy,
 
 
 /*****************************************************************
-* This function will write a data file with the pendeloesungPlot 
+* This function will write a data file with the pendeloesungPlot
 * for selected beams
 ****************************************************************/
 void writeBeams(MULS *muls, WavePtr wave, int ilayer, int absolute_slice) {
@@ -3024,14 +3033,14 @@ void writeBeams(MULS *muls, WavePtr wave, int ilayer, int absolute_slice) {
 			fprintf( fp1, "nslice, (real,imag) (real,imag) ...\n\n");
 			for( ib=0; ib<muls->nbout; ib++)
 			{
-				// printf("beam: %d [%d,%d]",ib,hbeam[ib],kbeam[ib]);			
+				// printf("beam: %d [%d,%d]",ib,hbeam[ib],kbeam[ib]);
 				if(hbeam[ib] < 0 ) hbeam[ib] = muls->nx + hbeam[ib];
 				if(kbeam[ib] < 0 ) kbeam[ib] = muls->ny + kbeam[ib];
 				if(hbeam[ib] < 0 ) hbeam[ib] = 0;
 				if(kbeam[ib] < 0 ) kbeam[ib] = 0;
 				if(hbeam[ib] > muls->nx-1 ) hbeam[ib] = muls->nx-1;
 				if(kbeam[ib] > muls->ny-1 ) kbeam[ib] = muls->ny-1;
-				// printf(" => [%d,%d] %d %d\n",hbeam[ib],kbeam[ib],muls->nx,muls->ny);			
+				// printf(" => [%d,%d] %d %d\n",hbeam[ib],kbeam[ib],muls->nx,muls->ny);
 			}
 			/****************************************************/
 			/* setup of beam files, include the t=0 information */
@@ -3059,7 +3068,7 @@ void writeBeams(MULS *muls, WavePtr wave, int ilayer, int absolute_slice) {
 				rPart = scale*(*wave).wave[hbeam[ib]][kbeam[ib]][0],
 				iPart = scale*(*wave).wave[hbeam[ib]][kbeam[ib]][1]);
 			ampl = (real)sqrt(rPart*rPart+iPart*iPart);
-			phase = (real)atan2(iPart,rPart);	
+			phase = (real)atan2(iPart,rPart);
 			fprintf(fpAmpl,"\t%g",ampl);
 			fprintf(fpPhase,"\t%g",phase);
 		}
@@ -3067,14 +3076,14 @@ void writeBeams(MULS *muls, WavePtr wave, int ilayer, int absolute_slice) {
 		fprintf( fpAmpl, "\n");
 		fprintf( fpPhase, "\n");
 	} /* end of if muls.mode != REFINE */
-	
+
 	if (muls->mode == TEM) {
 		if (muls->pendelloesung == NULL) {
-			muls->pendelloesung = 
+			muls->pendelloesung =
 				float2D((*muls).nbout,
 				(*muls).slices*(*muls).mulsRepeat1*(*muls).mulsRepeat2*(*muls).cellDiv,
 				"pendelloesung");
-			scale = 1.0/(muls->nx*muls->ny); 
+			scale = 1.0/(muls->nx*muls->ny);
 			printf("Allocated memory for pendelloesung plot (%d x %d)\n",
 				(*muls).nbout,(*muls).slices*(*muls).mulsRepeat1*(*muls).mulsRepeat2);
 		}
@@ -3082,10 +3091,10 @@ void writeBeams(MULS *muls, WavePtr wave, int ilayer, int absolute_slice) {
 			rPart = (*wave).wave[muls->hbeam[ib]][muls->kbeam[ib]][0];
 			iPart = (*wave).wave[muls->hbeam[ib]][muls->kbeam[ib]][1];
 			muls->pendelloesung[ib][absolute_slice] = scale*(real)(rPart*rPart+iPart*iPart);
-			// printf("slice: %d beam: %d [%d,%d], intensity: %g\n",muls->nslic0,ib,muls->hbeam[ib],muls->kbeam[ib],muls->pendelloesung[ib][muls->nslic0]);			
-		} // end of ib=0 ... 
+			// printf("slice: %d beam: %d [%d,%d], intensity: %g\n",muls->nslic0,ib,muls->hbeam[ib],muls->kbeam[ib],muls->pendelloesung[ib][muls->nslic0]);
+		} // end of ib=0 ...
 	}
-	
+
 }
 
 
@@ -3096,9 +3105,9 @@ void writeBeams(MULS *muls, WavePtr wave, int ilayer, int absolute_slice) {
 
 //////////////////////////////////////////////////////////////////////////////////
 // DO NOT use this function, gives wrong results.
-// 
+//
 // This method of sampling z at the slice interval gives very wrong HOLZ results,
-// since this means a linear interpolation of a highly non-linear function.  Atoms 
+// since this means a linear interpolation of a highly non-linear function.  Atoms
 // are quasi split up into two layers.  This causes a cutting in half of the z-periodicity
 // for some unit cells (e.g. STO sampled 2 slices per unit cell)
 //
@@ -3120,7 +3129,7 @@ fftwf_complex *getAtomPotential3D_3DFFT(int Znum, MULS *muls,double B) {
 	ImageIOPtr imageIO = ImageIOPtr(new CImageIO(muls->potNx,muls->potNy,
 				muls->sliceThickness,muls->resolutionX/OVERSAMP_X,
 				muls->resolutionY/OVERSAMP_X));;
-#endif 
+#endif
 	static double *splinb=NULL;
 	static double *splinc=NULL;
 	static double *splind=NULL;
@@ -3134,14 +3143,14 @@ fftwf_complex *getAtomPotential3D_3DFFT(int Znum, MULS *muls,double B) {
 		splind = double1D(30, "splind" );
 
 
-		// Why do I use nx+2 and make dkx=1/nx? ... don't know anymore. :(    
+		// Why do I use nx+2 and make dkx=1/nx? ... don't know anymore. :(
 		nx = 2*OVERSAMP_X*(int)ceil(muls->atomRadius/muls->resolutionX)+2;
 		ny = 2*OVERSAMP_X*(int)ceil(muls->atomRadius/muls->resolutionY)+2;
 		// make the atom sphere have an even number of slices in z-direction
 		// the 2 center slices will be equal.
-		// The FFT-resolution in the z-direction must be high enough to avoid 
-		// artifacts due to premature cutoff of the rec. space scattering factor 
-		nz = 2*OVERSAMP_Z*(int)ceil(muls->atomRadius/muls->sliceThickness);  
+		// The FFT-resolution in the z-direction must be high enough to avoid
+		// artifacts due to premature cutoff of the rec. space scattering factor
+		nz = 2*OVERSAMP_Z*(int)ceil(muls->atomRadius/muls->sliceThickness);
 		dkx = OVERSAMP_X/((nx-2)*muls->resolutionX);  // 0.5-factor s->k
 		dky = OVERSAMP_X/((ny-2)*muls->resolutionY);
 		dkz = OVERSAMP_Z/(double)(nz*muls->sliceThickness);
@@ -3158,11 +3167,11 @@ fftwf_complex *getAtomPotential3D_3DFFT(int Znum, MULS *muls,double B) {
 			for (ix = 0;ix < 20;ix++) {
 				if (scatPar[0][26-ix] < scatPar[0][27]-0.1*(ix+1)) break;
 				scatPar[0][26-ix] = scatPar[0][27]-0.1*(ix+1);
-				for (iy=1; iy<=8;iy++) scatPar[iy][26-ix] = 0;	
+				for (iy=1; iy<=8;iy++) scatPar[iy][26-ix] = 0;
 			}
 			if (muls->printLevel > 1)
 				printf("getAtomPotential3D: reduced angular range of scattering factor to %g/A!\n",scatPar[0][26-ix]);
-		} 
+		}
 		kmax2 *= kmax2;
 
 		atPot = (fftwf_complex **)malloc((NZMAX+1)*sizeof(fftwf_complex *));
@@ -3182,7 +3191,7 @@ fftwf_complex *getAtomPotential3D_3DFFT(int Znum, MULS *muls,double B) {
 	case 20: iKind = 9; break;  // Ca
 	case 56: iKind = 10; break;  // Ba
 	case 26: iKind = 11; break;  // Fe
-	default: 
+	default:
 		printf("This atom kind (%d) is not supported yet - sorry!\n",Znum);
 		exit(0);
 		}
@@ -3193,19 +3202,19 @@ fftwf_complex *getAtomPotential3D_3DFFT(int Znum, MULS *muls,double B) {
 
 		atPot[Znum] = (fftwf_complex*)fftwf_malloc(nx*ny*nz*sizeof(fftwf_complex));
 		memset(atPot[Znum],0,nx*ny*nz*sizeof(fftwf_complex));
-		kzmax    = dkz*nz/2.0; 
-		kzborder = dkz*(nz/(2*OVERSAMP_Z) -1); 
+		kzmax    = dkz*nz/2.0;
+		kzborder = dkz*(nz/(2*OVERSAMP_Z) -1);
 		for (iz=0;iz<nz;iz++) {
-			kz = dkz*(iz<nz/2 ? iz : iz-nz);    
+			kz = dkz*(iz<nz/2 ? iz : iz-nz);
 			// We also need to taper off the potential in z-direction
 			// in order to avoid cutoff artifacts.
-			zScale = fabs(kz) <= kzborder ? 1.0 : 
+			zScale = fabs(kz) <= kzborder ? 1.0 :
 				0.5+0.5*cos(PI*(fabs(kz)-kzborder)/(kzmax-kzborder));
 			// printf("iz=%d, kz=%g, zScale=%g ",iz,kz,zScale);
 			for (ix=0;ix<nx;ix++) {
-				kx = dkx*(ix<nx/2 ? ix : ix-nx);      
+				kx = dkx*(ix<nx/2 ? ix : ix-nx);
 				for (iy=0;iy<ny;iy++) {
-					ky = dky*(iy<ny/2 ? iy : iy-ny);      
+					ky = dky*(iy<ny/2 ? iy : iy-ny);
 					s2 = S_SCALE*S_SCALE*(kx*kx+ky*ky+kz*kz);
 					// if this is within the allowed circle:
 					if (s2<S_SCALE*S_SCALE*kmax2) {
@@ -3232,11 +3241,11 @@ fftwf_complex *getAtomPotential3D_3DFFT(int Znum, MULS *muls,double B) {
 		dx2 = muls->resolutionX*muls->resolutionX/(OVERSAMP_X*OVERSAMP_X);
 		dy2 = muls->resolutionY*muls->resolutionY/(OVERSAMP_X*OVERSAMP_X);
 		dz2 = muls->sliceThickness*muls->sliceThickness/(OVERSAMP_Z*OVERSAMP_Z);
-		// Here we make sure that our atom is not bigger than the desired radius, i.e. that 
+		// Here we make sure that our atom is not bigger than the desired radius, i.e. that
 		// we really have round blobs.
-		// We also make sure that the potential touches zero at least somewhere.  This will avoid 
-		// sharp edges that could produce ringing artifacts.  
-		// It is certainly debatable whether this is a good apprach, or not. 
+		// We also make sure that the potential touches zero at least somewhere.  This will avoid
+		// sharp edges that could produce ringing artifacts.
+		// It is certainly debatable whether this is a good apprach, or not.
 		// printf("Setting up %d x %d x %d potential for Znum=%d, (atom kind %d), Omega=%g\n",nx,ny,nz,Znum,iKind,dkx*dky*dkz);
 		// min = atPot[Znum][ny/2+nx/2*ny+nz/2*nx*ny][0];
 		for (ix=0;ix<nx;ix++) for (iy=0;iy<ny;iy++) for (iz=0;iz<nz/OVERSAMP_Z;iz++) {
@@ -3254,7 +3263,7 @@ fftwf_complex *getAtomPotential3D_3DFFT(int Znum, MULS *muls,double B) {
 			}
 			// assign the iz-th slice the sum of the 3 other slices:
 			// and divide by unit cell area (volume, if in 3D):
-			atPot[Znum][ind3d][0] = zScale*dkx*dky/nz;	
+			atPot[Znum][ind3d][0] = zScale*dkx*dky/nz;
 			if (atPot[Znum][ind3d][0] < 0) atPot[Znum][ind3d][0] = 0;
 			// if (atPot[Znum][ind3d][0] < min) min = atPot[Znum][ind3d][0];
 
@@ -3264,7 +3273,7 @@ fftwf_complex *getAtomPotential3D_3DFFT(int Znum, MULS *muls,double B) {
 		for (zScale = 0,ix=0;ix<nx;ix++) for (iy=0;iy<ny;iy++)  for (iz=0;iz<nz/OVERSAMP_Z;iz++){
 			if ((sqrt((ix-nx/2)*(ix-nx/2)*dx2+(iy-ny/2)*(iy-ny/2)*dy2+
 				(iz+0.5-nz/(2*OVERSAMP_Z))*(iz+0.5-nz/(2*OVERSAMP_Z))*dz2)) <= muls->atomRadius) {
-					//      if (sqrt((ix-nx/2)*(ix-nx/2)*dx2+(iy-ny/2)*(iy-ny/2)*dy2+(iz-nz/2)*(iz-nz/2)*dz2) <= muls->atomRadius) {	
+					//      if (sqrt((ix-nx/2)*(ix-nx/2)*dx2+(iy-ny/2)*(iy-ny/2)*dy2+(iz-nz/2)*(iz-nz/2)*dz2) <= muls->atomRadius) {
 					ind3d = iy+ix*ny+iz*nx*ny;
 					if ((ix == nx/2) && (iy == ny/2)) zScale += atPot[Znum][ind3d][0];
 					// atPot[Znum][ind3d][0] -= min;
@@ -3279,7 +3288,7 @@ fftwf_complex *getAtomPotential3D_3DFFT(int Znum, MULS *muls,double B) {
 			ptr = &(atPot[Znum][iz*nx*ny]);
 			imageIO->WriteRealImage((void **)ptr,fileName);
 		}
-#endif    
+#endif
 		if (muls->printLevel > 0)
 			printf("Created 3D %d x %d x %d potential array for Z=%d (%d, B=%g, sum=%g)\n",nx,ny,nz/OVERSAMP_Z,Znum,iKind,B,zScale);
 	}
